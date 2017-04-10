@@ -1,6 +1,6 @@
 # Proposal
 
-### Summary
+## Summary
 ### Background
 ### Challenge
 ### Resources
