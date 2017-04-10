@@ -27,7 +27,12 @@
 <a id="rather-drive-stick" class="anchor" href="#rather-drive-stick" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Challenge</h3>
 <ul style="list-style: none;">
    <li><h4>Choice of Architecture</h4>
-    <p></p></li>
+    <p>Since we are doing the project in a bounded amount of time, there are two parameters that we'll be using to choose 
+       the architecture of DNN that we would want to develop a parallel training algorithm for. First, an architecture that
+       is more likely to benefit from a distributed setting. From a preliminary literature survey, we have gathered that, convolutional
+       neural networks are more likely to be easily distributed as opposed to a traditional fully connected network. Since the first stage of our
+       project will be to have a single node baseline implementation, we want to choose an architecture that does not take enormous amounts of time
+       train, since we want to keep enough time for development and exploration as well.</p></li>
 
   <li><h4>Parallelism Axis</h4>
     <p>Parallelism in the training deep neural networks can be explored along two axes. Depending on the architecture and communication
