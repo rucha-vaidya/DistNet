@@ -49,9 +49,12 @@
      of the network being trained(to understand the dependencies), to choose the best fit for a specific scenario. Some of the possible ways to do the same are :</p>
     <ul> 
     <li>Parameter Server : <br> Multiple worker nodes compute the weights and push them to a parameter server; workers can pull
-        updated weights from the parameter server. The parameter server has to do O(n) serial computation is averaging out the values from all workers where n 
+        updated weights from the parameter server. The parameter server has to do O(p) serial computation is averaging out the values from all workers where n 
         is the number of workers. One common way to alleviate this issue is to use multiple nodes as parameter servers</li>
-      <li>Reduction Tree :</li>
+      <li>Reduction Tree : <br> The reduction tree framework uses the allreduce approach, where each worker produces one or more data values that must be globally
+reduced (generally with a commutative binary element-wise operator) to produce a single result value, and then this single
+value must be broadcast to all workers before they can continue. The serial computation done by each worker remains constant as the number of workers
+        increases, but the total serial computation is 2log(p)</li>
        <li>Decentralized :</li>
     </ul></li>
     <li><h4>Choice of Architecture</h4>
