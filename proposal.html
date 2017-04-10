@@ -20,20 +20,18 @@
     is extremely high, making the time for each epoch high. Training AlexNet on a single GPU(NVIDIA K20) takes about 100 epochs (6 days). Long training times for high-accuracy deep neural networks (DNNs) 
     impede research into new DNN architectures and slow the development of high-accuracy DNNs. Hence, we would like to explore the use of a cluster of GPU machines to accelerate the learning. 
     The speed and scalability of distributed algorithms is almost always limited by the overhead of communicating between servers; DNN training is not an exception to this rule.
-    Therefore, the key consideration here is to reduce communication overhead wherever possible, while not degrading the accuracy of the DNN models that we train. Our approach has three key pillars.</p>
+    Therefore, the key consideration here is to reduce communication overhead wherever possible, while not degrading the accuracy of the DNN models that we train.</p>
 
 
 <h3>
 <a id="rather-drive-stick" class="anchor" href="#rather-drive-stick" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Challenge</h3>
 <ul style="list-style: none;">
-  <li><h4>Problem complexity</h4>
-    <p>SLAM algorithms are tailored to the available resources, and hence are not aimed at perfection, but at operational compliance. SLAM will always use several different types of sensors, and the powers and limits of various sensor types have been a major driver of new algorithms. Researchers and experts in artificial intelligence have struggled to solve the SLAM problem in practical settings: that is, it required a great deal of computational power to sense a sizable area and process the resulting data to both map and localize.  Almost all the current approaches cannot generate maps for large areas, mainly due to the increase of the computational cost and due to the uncertainties that become prohibitive when the scenario becomes larger 
+  <li><h4>Parallelism Axis</h4>
+    <p>Parallelism in the training deep neural networks can be explored along two axes
     </p></li>
-  <li><h4>Choice of camera</h4> 
-  <p>RGB-D cameras provide both color images and per pixel depth estimates.  A modern widely used RGB-D sensor is the Kinect. Since the Kinect is not space rated, we have to use an alternate RGB-D sensor. The CubeRover has size and power limitations, due to which, a single monocular camera is prefered. In the future, the CubeRover team has tentative plans to mount a Lidar,  that will provide depth information. In the meantime, we only have a monocular camera to work with. Depth estimation with monocular vision is a project in itself. We plan to use depth maps generated from a Kinect to complete the localization and loop closure systems, and if time permits, address the issue of generating depth maps from a monocular camera. </p></li>
- <li><h4>Dense vs sparse SLAM</h4> 
- <p>At the highest level, there are two variations of SLAM. One involves extracting fixed features from each image frame, and comparing two images using these features (this is sparse SLAM). This is prone to errors mainly due to sparse, self similar features on the moon. The other variation uses all the pixels in two image frames when comparing them (this is dense SLAM). Although it has been shown (confirming suspicions) that dense SLAM is more accurate than sparse SLAM [<a href="#ref">3</a>] [<a href="#ref">4</a>], the dense SLAM problem is computationally much more expensive than the sparse version. For robotics applications, especially ones as sensitive as moon missions, it is imperative to have algorithms that are not only accurate, but also run in real-time.
-</p></li>
+  <li><h4>Communication Model</h4> 
+  <p>An ideal communication model should strike the right balance</p></li>
+
 </ul>
 
 <h3>
