@@ -79,9 +79,8 @@ value must be broadcast to all workers before they can continue. The serial comp
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Goals and Deliverables</h3>
         <ol>
-        <li>Accurate and efficient single node implementation using GPU. This would act as our baseline implementation that uses the compute power of GPUs to parallelise
-            the the learning algorithm on the single node. Since we are yet to
-            finalise our architecture, we don't have a benchmark yet, against which we can test the performance we get on this. We'll be updating this once we have finalised the architecture</li>
+        <li>Accurate and efficient single node implementation using GPU. This would act as our baseline implementation for the distributed version of the algorithm. We'll use the compute power of GPUs to parallelise
+            the the learning algorithm on the single node. Since we are yet to finalise our architecture, we don't have a benchmark(a standard CPU implementation) yet, against which we can test the performance our single node parallel version. We'll be updating this once we have finalised the architecture</li>
         <li>Implementing a distributed version of the training algorithm. Exploring two different communication regimes, namely, parameter server and 
             reduction tree. Both the regimes will implement the data-parallel approach. The reduction in training time we get will be evaluated on the basis of
             the cost of scaling out, and the speedup.</li>    
@@ -168,6 +167,10 @@ value must be broadcast to all workers before they can continue. The serial comp
 <ol type="1">
 <li>A standard single node CPU implementation of the training algorithm for the neural network architecture we choose. The speedup for our single node GPU implementation will be measured against this implementation.</li>
 <li><a target="_blank" href="http://engineering.skymind.io/distributed-deep-learning-part-1-an-introduction-to-distributed-training-of-neural-networks"> Skymind Engineering Blog </a></li>
+<li>FireCaffe: near-linear acceleration of deep neural network training on compute clusters</li>   
+    <li>Alex Krizhevsky, Google Inc : One weird trick for parallelizing convolutional neural networks</li>
+    <li>AlexNet : ImageNet Classification with Deep Convolutional Neural Networks</li>
+    <li>A Reliable Distributed Convolutional Neural Network for Biology Image Segmentation</li>
 </ol>
 
       <footer class="site-footer">
