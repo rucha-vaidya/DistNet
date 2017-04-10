@@ -13,15 +13,14 @@
 
 <h3>
 <a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Background</h3>
-<p>Neural networks are a set of algorithms, modeled loosely after the human brain, that are designed to recognize patterns. They interpret sensory data through a kind of machine perception, labeling or clustering raw input. The patterns they recognize are numerical, contained in vectors, into which all real-world data, be it images, sound, text or time series, must be translated.
-   Deep neural networks have more than a single hidden layer between the input and the output layer. Training the neural network is done through gradient descent and backpropagation. Deep neural networks
-    with multiple convolution layers and followed by fully connected layers takes a long time to train due to the varying learning rates. To achieve high accuracy, the amount of data fed into these networks is also extremely high.
-    Long training times for high-accuracy deep neural networks (DNNs) impede research into new DNN architectures and slow the development of high-accuracy DNNs. In this paper we present FireCaffe, which successfully scales deep neural network training across a cluster of GPUs. 
-    We also present a number of best practices to aid in comparing advancements in methods for scaling and accelerating the training of deep neural networks. The speed and scalability of distributed algorithms is almost always limited by the overhead of communicating between servers; DNN training is not an exception to this rule.
-    Therefore, the key consideration here is to reduce communication overhead wherever possible, while not degrading the accuracy of the DNN models that we train. Our approach has three key pillars. First, we select network hardware that achieves high bandwidth between GPU servers – Infiniband or Cray interconnects are ideal for this. 
-    Second, we consider a number of communication algorithms, and we find that reduction trees are more efficient and scalable than the traditional parameter server approach. Third, we optionally increase the batch size to reduce the total quantity of communication during DNN training, 
-    and we identify hyperparameters that allow us to reproduce the small-batch accuracy while training with large batch sizes. When training GoogLeNet and Network-in-Network on ImageNet, we achieve a 47x and 39x speedup, respectively, 
-    when training on a cluster of 128 GPUs.</p>
+<p>Neural networks are a set of algorithms, modeled loosely after the human brain, that are designed to recognize patterns. They interpret sensory data through a kind of machine perception,
+    labeling or clustering raw input. The patterns they recognize are numerical, contained in vectors, into which all real-world data, be it images, sound, text or time series, must be translated.
+    Deep neural networks have more than a single hidden layer between the input and the output layer. Training the neural network is done through gradient descent and backpropagation. Deep neural networks
+    with multiple convolution layers and followed by fully connected layers takes a long time to train due to the varying learning rates. To achieve high accuracy, the amount of data fed into these networks
+    is extremely high, making the time for each epoch high. Training AlexNet on a single GPU(NVIDIA K20) takes about 100 epochs (6 days). Long training times for high-accuracy deep neural networks (DNNs) 
+    impede research into new DNN architectures and slow the development of high-accuracy DNNs. Hence, we would like to explore the use of a cluster of GPU machines to accelerate the learning. 
+    The speed and scalability of distributed algorithms is almost always limited by the overhead of communicating between servers; DNN training is not an exception to this rule.
+    Therefore, the key consideration here is to reduce communication overhead wherever possible, while not degrading the accuracy of the DNN models that we train. Our approach has three key pillars.</p>
 
 
 <h3>
