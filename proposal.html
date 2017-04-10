@@ -26,7 +26,9 @@
 <h3>
 <a id="rather-drive-stick" class="anchor" href="#rather-drive-stick" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Challenge</h3>
 <ul style="list-style: none;">
-   
+   <li><h4>Choice of Architecture</h4>
+    <p></p></li>
+
   <li><h4>Parallelism Axis</h4>
     <p>Parallelism in the training deep neural networks can be explored along two axes. Depending on the architecture and communication
         model we choose, the parallelism axis will affect the speedup that can be achieved by learning on a cluster as opposed to a single node.
@@ -34,13 +36,15 @@
     </p>
      <ul> 
       <li>Model Parallelism: <br>
-        In this type of Parallelism each layer in the Neural network can be assigned to a different 
-          machine in the distributed system. This kind of parallelism benefits scalability to large models. 
+        In this type of Parallelism different parts of the model that is being learnt in the neural network are computed by different 
+          machines in the distributed system. Model parallelism is efficient when the amount of computation per neuron 
+          activity is high, because neuron activity is the unit being communicated.
          </li>
          
       <li>Data Parallelism: <br>
          In this type of parallelism each machine in the distributed system has a copy of the entire model but the data 
-         to be trained upon is distributed over the machines and the results are combined from each.</li>
+         to be trained upon is distributed over the machines and the results are combined from each. Data parallelism is efficient when the
+         amount of computation per weight is high, because the weight is the unit being communicated.</li>
           
     </ul>
   <li><h4>Communication Model</h4> 
@@ -54,12 +58,14 @@
       <li>Reduction Tree : <br> The reduction tree framework uses the allreduce approach, where each worker produces one or more data values that must be globally
 reduced (generally with a commutative binary element-wise operator) to produce a single result value, and then this single
 value must be broadcast to all workers before they can continue. The serial computation done by each worker remains constant as the number of workers
-        increases, but the total serial computation is 2log(p)</li>
-       <li>Decentralized :</li>
-    </ul></li>
-    <li><h4>Choice of Architecture</h4>
-    <p></p></li>
-
+        increases, but the total serial computation is 2log(p).</li>
+       <li>Decentralized : <br> Another interesting communication paradigm is where all machines send to each other; advantages of 
+        this approach are majorly through compression of the updates that need to be send across to the different nodes.</li>
+    </ul>
+    <p>A crucial part of the algorithm is to decide between how frequently to synchronize, and how much of a lazy update can the network
+      endure without affecting the convergence rate and accuracy of the model</p>
+    </li>
+    
 </ul>
 
 <h3>
