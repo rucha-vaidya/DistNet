@@ -37,7 +37,9 @@
       <li>Data Parallelism</li>
     </ul></li>
   <li><h4>Communication Model</h4> 
-  <p>There are many ways of communicating the gradiant values to different nodes. Some of the possible ways to do the same are :</p>
+  <p>There are many ways of communicating the gradiant values to different nodes. Not all methods of parallelism work well with all methods
+   all models of communication. It will important to analyze the structure of the cluster that the training is going to be done on, as well as architecture
+      of the network being trained(to understand the dependencies), to choose the best fit for a specific scenario. Some of the possible ways to do the same are :</p>
     <ul> 
     <li>Parameter Server : </li>
       <li>Reduction Tree :</li>
