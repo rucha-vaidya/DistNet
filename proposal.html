@@ -37,7 +37,7 @@
   <li><h4>Parallelism Axis</h4>
     <p>Parallelism in the training deep neural networks can be explored along two axes. Depending on the architecture and communication
         model we choose, the parallelism axis will affect the speedup that can be achieved by learning on a cluster as opposed to a single node.
-        The two kinds of parallelism are
+        The two kinds of parallelism are :
     </p>
      <ul> 
       <li>Model Parallelism: <br>
@@ -45,12 +45,12 @@
           machines in the distributed system. Model parallelism is efficient when the amount of computation per neuron 
           activity is high, because neuron activity is the unit being communicated.
          </li>
-         
+         <img src="assets/Model_parallelism.png" width="100%"/>
       <li>Data Parallelism: <br>
          In this type of parallelism each machine in the distributed system has a copy of the entire model but the data 
          to be trained upon is distributed over the machines and the results are combined from each. Data parallelism is efficient when the
          amount of computation per weight is high, because the weight is the unit being communicated.</li>
-          
+          <img src="assets/data_parallelism.png" width="100%"/>
     </ul>
   <li><h4>Communication Model</h4> 
      <p>There are many ways of communicating the gradiant values to different nodes. Not all methods of parallelism work well with all methods
@@ -67,6 +67,7 @@ value must be broadcast to all workers before they can continue. The serial comp
         <img src="assets/RedTree_Param.png" width="100%"/>
        <li>Decentralized : <br> Another interesting communication paradigm is where all machines send to each other; advantages of 
         this approach are majorly through compression of the updates that need to be send across to the different nodes.</li>
+        <img src="assets/decentralized.png" width="100%"/>
     </ul>
     <p>A crucial part of a distributed machine learning algorithm is to decide between how frequently to synchronize, and how much of a lazy update can the network
       endure without affecting the convergence rate and accuracy of the model</p>
