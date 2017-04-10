@@ -99,7 +99,7 @@ value must be broadcast to all workers before they can continue. The serial comp
     <thead>
         <tr bgcolor="#f0f0f0">
             <th>#</th>
-            <th>Date</th>
+            <th>Dates</th>
             <th>Objective</th>
             <th>Description</th>
         </tr>
@@ -108,62 +108,59 @@ value must be broadcast to all workers before they can continue. The serial comp
     <tbody>
         <tr>
             <td>1</td>
-            <td nowrap= "nowrap">April 4</td>
-            <td>Setup the working environment </td>
-            <td>Set up the tegra and kinect. Install the required software packages</td>
+            <td nowrap= "nowrap">April 11 - April 12</td>
+            <td>DNN Architecture and Baseline Research </td>
+            <td>Research about the different Deep Neural networks available with training datasets and decide on one. 
+                Find a training set for which performance results are available for a good serial implementation. 
         </tr>
 
         <tr bgcolor="#f0f0f0">
             <td>2</td>
-            <td nowrap= "nowrap">April 6</td>
-            <td>Initial testing of the benchmarked software</td>
-            <td></td>
-        </tr>
+            <td nowrap= "nowrap">April 13 - April 19</td>
+            <td>Single node GPU implementation</td>
+            <td>Understand the algorithms involved in the DNN and parallelize it using CUDA 
+                on a single node with GPU. Test and compare it with the best serial implementation.</td>
+       </tr>
 
         <tr>
-            <td>3*</td>
-            <td nowrap="nowrap">April 20</td>
-            <td>Visual Odometry GPU Implementation</td>
-            <td></td>
+            <td>3</td>
+            <td nowrap="nowrap">April 20 - April 26</td>
+            <td>Distributed Implemetation on GPU cluster - Type 1</td>
+            <td>Build a Data-Parallel Distributed version of the architecture running on a GPU cluster 
+                using the Parameter Server model. Test and compare benefits of scaling to cluster based over 
+                the cost of using multiple GPU. </td>
         </tr>
-
-        <tr bgcolor="#f0f0f0">
-            <td>4*</td>
-            <td nowrap="nowrap">April 25</td>
-            <td>Visual Odometry CPU Implementation</td>
-            <td></td>
-        </tr>
-
+        
         <tr>
-            <td>5</td>
-            <td nowrap="nowrap">April 26 - May 1</td>
+            <td>4</td>
+            <td nowrap="nowrap">April 27 - April 28</td>
+            <td>Distributed Implemetation on GPU cluster - Type 2</td>
+            <td>Start building a Data-Parallel Distributed version of the architecture running on a GPU cluster 
+                using the Reduced Tree model.</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td nowrap="nowrap">April 29 - May 1</td>
             <td>Exam Preparation</td>
             <td></td>
         </tr>
 
         <tr bgcolor="#f0f0f0">
-            <td>6</td>
-            <td nowrap="nowrap">May 2 - May 5</td>
-            <td>Integration</td>
-            <td>Integrating all the modules and testing for correctness and performance. Also, testing on different test data sets</td>
-        </tr>
-
-        <tr>
-            <td>7</td>
-            <td nowrap="nowrap">May 6 - May 7</td>
-            <td>Test for energy consumption</td>
-            <td></td>
+            <td>5</td>
+            <td nowrap="nowrap">May 2 - May 7</td>
+            <td>Continue Type 2 </td>
+            <td>Resume building the Reduced Tree Model. Test and compare benefits over Parameter Server Model 
+                and performance improvement over the best serial implementation. 
         </tr>
 
         <tr bgcolor="#f0f0f0">
-            <td>8</td>
-            <td nowrap="nowrap">May 7 - May 11</td>
-            <td>Final Product</td>
+            <td>6</td>
+            <td nowrap="nowrap">May 8 - May 9</td>
+            <td>Final Result Preparation</td>
             <td>Final report, presentation and an attempt at the stretch goal</td>
         </tr>
     </tbody>
 </table>
-<font size = "3"> <i> *Revised schedule</i></font>
 
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>References<a name="ref"></a></h3>
