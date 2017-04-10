@@ -30,21 +30,21 @@
   <li><h4>Parallelism Axis</h4>
     <p>Parallelism in the training deep neural networks can be explored along two axes. Depending on the architecture and communication
         model we choose, the parallelism axis will affect the speedup that can be achieved by learning on a cluster as opposed to a single node.
-        The two kinds of parallelism are :
+        The two kinds of parallelism are
     </p>
      <ul> 
-    <li>Model Parallelism</li>
-      <li>Data Parallelism</li>
-    </ul></li>
+      <li>Model Parallelism: <br>
+        In this type of Parallelism each layer in the Neural network can be assigned to a different 
+          machine in the distributed system. This kind of parallelism benefits scalability to large models. 
+         </li>
+         
+      <li>Data Parallelism: <br>
+         In this type of parallelism each machine in the distributed system has a copy of the entire model but the data 
+         to be trained upon is distributed over the machines and the results are combined from each.</li>
+          
+    </ul>
   <li><h4>Communication Model</h4> 
-  <p>There are many ways of communicating the gradiant values to different nodes. Not all methods of parallelism work well with all methods
-   all models of communication. It will important to analyze the structure of the cluster that the training is going to be done on, as well as architecture
-      of the network being trained(to understand the dependencies), to choose the best fit for a specific scenario. Some of the possible ways to do the same are :</p>
-    <ul> 
-    <li>Parameter Server : </li>
-      <li>Reduction Tree :</li>
-        <li>Decentralized :</li>
-    </ul></li>
+  <p>An ideal communication model should strike the right balance</p></li>
     <li><h4>Choice of Architecture</h4>
     <p></p></li>
 
