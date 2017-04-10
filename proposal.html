@@ -74,14 +74,14 @@ value must be broadcast to all workers before they can continue. The serial comp
     
 </ul>
 <h3>
-<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resource</h3>
-        <p>A cluster of 10 machines with GPUs</p>
+<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Platform Choice</h3>
+        <p>GPU cluster with Cuda and MPI</p>
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Goals and Deliverables</h3>
         <ol>
         <li>Accurate and efficient single node implementation using GPU. This would act as our baseline implementation that uses the compute power of GPUs to parallelise
             the the learning algorithm on the single node. Since we are yet to
-            finalise our architecture, we don't have a benchmark yet, against which we can test the performance we get on this. We'll be updating this once we have finalised the architecture<li>
+            finalise our architecture, we don't have a benchmark yet, against which we can test the performance we get on this. We'll be updating this once we have finalised the architecture</li>
         <li>Implementing a distributed version of the training algorithm. Exploring two different communication regimes, namely, parameter server and 
             reduction tree. Both the regimes will implement the data-parallel approach. The reduction in training time we get will be evaluated on the basis of
             the cost of scaling out, and the speedup.</li>    
