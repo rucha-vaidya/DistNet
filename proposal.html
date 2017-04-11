@@ -9,7 +9,7 @@
 
   
 
-<p>  We are going to implement a distributed training algorithm for high-accuracy deep neural networks using Cuda on a cluster of nodes using a parameter-server/reduction-tree architecture and MPI</p>
+<p>We are going to implement a distributed training algorithm for high-accuracy deep neural networks using Cuda on a cluster of nodes using a parameter-server/reduction-tree architecture leveraging MPI</p>
 
 <h3>
 <a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Background</h3>
@@ -32,7 +32,7 @@
        is more likely to benefit from a distributed setting. From a preliminary literature survey, we have gathered that, convolutional
        neural networks are more likely to be easily distributed as opposed to a traditional fully connected network. Since the first stage of our
        project will be to have a single node baseline implementation, we want to choose an architecture that does not take enormous amounts of time
-       train, since we want to keep enough time for development and exploration as well.</p></li>
+       train, since we want to keep enough time for development and exploration of communication paradigms as well.</p></li>
 
   <li><h4>Parallelism Axis</h4>
     <p>Parallelism in the training deep neural networks can be explored along two axes. Depending on the architecture and communication
@@ -85,6 +85,8 @@ value must be broadcast to all workers before they can continue. The serial comp
         <li>Implementing a distributed version of the training algorithm. Exploring two different communication regimes, namely, parameter server and 
             reduction tree. Both the regimes will implement the data-parallel approach. The reduction in training time we get will be evaluated on the basis of
             the cost of scaling out, and the speedup.</li>    
+        <li>Correctness Evaluation : We want to make sure that the single node GPU implementation and the distributed learning algorithm do not compromise on
+            accurancy. Hence we will be aiming to achieve an accuracy within 0.5% of accuracy achieved by the benchmark implementation on CPU. </li>
         </ol>
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Stretch Goal</h3>
