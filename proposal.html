@@ -85,7 +85,7 @@ value must be broadcast to all workers before they can continue. The serial comp
         <li>Implementing a distributed version of the training algorithm. Exploring two different communication regimes, namely, parameter server and 
             reduction tree. Both the regimes will implement the data-parallel approach. The reduction in training time we get will be evaluated on the basis of
             the cost of scaling out, and the speedup.</li>    
-        <li>Correctness Evaluation : We want to make sure that the single node GPU implementation and the distributed learning algorithm do not compromise on
+        <li>Accuracy Evaluation : We want to make sure that the single node GPU implementation and the distributed learning algorithm do not compromise on
             accurancy. Hence we will be aiming to achieve an accuracy within 0.5% of accuracy achieved by the benchmark implementation on CPU. </li>
         </ol>
 <h3>
