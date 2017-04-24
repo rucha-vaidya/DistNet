@@ -83,9 +83,9 @@ def train():
        
     placeholder_gradients = []
 
-    with tf.device("/gpu:0"):
-        for grad_var in grads :
-            placeholder_gradients.append((tf.placeholder('float', shape=grad_var[0].get_shape()) ,grad_var[1]))
+    #with tf.device("/gpu:0"):
+    for grad_var in grads :
+        placeholder_gradients.append((tf.placeholder('float', shape=grad_var[0].get_shape()) ,grad_var[1]))
 
  
     
