@@ -37,6 +37,9 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
+import sys
+import cPickle as pickle
+import socket
 
 from datetime import datetime
 import time
@@ -45,18 +48,36 @@ import tensorflow as tf
 
 import cifar10
 
+TCP_IP = '127.0.0.1'
+TCP_PORT = 5008
+
 FLAGS = tf.app.flags.FLAGS
+
 
 tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 10000,
+tf.app.flags.DEFINE_integer('max_steps', 10,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
-tf.app.flags.DEFINE_integer('log_frequency', 10,
+tf.app.flags.DEFINE_integer('log_frequency', 1,
                             """How often to log results to the console.""")
 
+def safe_recv(size, server_socket):
+  data = ''
+  temp = ''
+  recv_size = 0
+  while 1:
+    try:
+        temp = server_socket.recv(1024)
+        data += temp
+        recv_size = sys.getsizeof(data)
+        if recv_size >= size:
+            break
+    except:
+        print("Error")
+  return data
 
 def train():
   """Train CIFAR-10 for a number of steps."""
@@ -79,7 +100,6 @@ def train():
     only_gradients = [g for g,_ in grads]
     only_vars = [v for _,v in grads]
 
-   
        
     placeholder_gradients = []
 
@@ -106,11 +126,11 @@ def train():
       def begin(self):
         self._step = -1
         self._start_time = time.time()
-        #print("session begun")
+        print("session begun")
 
       def before_run(self, run_context):
         self._step += 1
-        #print("before run")
+        print("before run")
         return tf.train.SessionRunArgs(loss)  # Asks for loss value.
         
 
@@ -142,12 +162,33 @@ def train():
         
         gradients = mon_sess.run(only_gradients,feed_dict = feed_dict)
 
+        # Opening the socket and connecting to server
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((TCP_IP, TCP_PORT))
+        # pickling the gradients
+        send_data = pickle.dumps(gradients,pickle.HIGHEST_PROTOCOL)
+        # finding size of pickled gradients
+        to_send_size = sys.getsizeof(send_data)
+        # Sending the size of the gradients first
+        send_size = pickle.dumps(to_send_size, pickle.HIGHEST_PROTOCOL)
+        s.send(send_size)
+        print("Size esending : ", to_send_size)
+        print("Size of size ", sys.getsizeof(send_size)) 
+        # sending the gradients
+        s.send(send_data)
+        recv_data = safe_recv(to_send_size, s)
+        s.close()
+        gradients2 = pickle.loads(recv_data)
+        print("Recevied gradients of size: ", sys.getsizeof(recv_data))
         feed_dict = {}
        
-        for i,grad_var in enumerate(gradients): 
-           feed_dict[placeholder_gradients[i][0]] = gradients[i]
-          
-        
+
+        for i,grad_var in enumerate(gradients2): 
+           feed_dict[placeholder_gradients[i][0]] = gradients2[i]
+           print(gradients[i].shape)
+           print(gradients2[i].shape)
+
+
         res = mon_sess.run(train_op, feed_dict=feed_dict)
 
 def main(argv=None):  # pylint: disable=unused-argument

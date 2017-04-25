@@ -1,1 +1,0 @@
-Filling queue with 20000 CIFAR images before starting to train. This will take a few minutes.
