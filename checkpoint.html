@@ -1,0 +1,186 @@
+
+
+    <section class="main-content">
+      <h2>
+<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a><b>Proposal</b></h2>
+
+<h3>Summary</h3>
+ 
+
+  
+
+<p>We are going to implement a distributed training algorithm for high-accuracy deep neural networks using Cuda on a cluster of nodes using a parameter-server/reduction-tree architecture leveraging MPI</p>
+
+<h3>
+<a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Background</h3>
+<p>Neural networks are a set of algorithms, modeled loosely after the human brain, that are designed to recognize patterns. They interpret sensory data through a kind of machine perception,
+    labeling or clustering raw input. The patterns they recognize are numerical, contained in vectors, into which all real-world data, be it images, sound, text or time series, must be translated.
+    Deep neural networks have more than a single hidden layer between the input and the output layer. Training the neural network is done through gradient descent and backpropagation. Deep neural networks
+    with multiple convolution layers and followed by fully connected layers takes a long time to train due to the varying learning rates. To achieve high accuracy, the amount of data fed into these networks
+    is extremely high, making the time for each epoch high. Training AlexNet on a single GPU(NVIDIA K20) takes about 100 epochs (6 days). Long training times for high-accuracy deep neural networks (DNNs) 
+    impede research into new DNN architectures and slow the development of high-accuracy DNNs. Hence, we would like to explore the use of a cluster of GPU machines to accelerate the learning. 
+    The speed and scalability of distributed algorithms is almost always limited by the overhead of communicating between servers; DNN training is not an exception to this rule.
+    Therefore, the key consideration here is to reduce communication overhead wherever possible, while not degrading the accuracy of the DNN models that we train.</p>
+
+
+<h3>
+<a id="rather-drive-stick" class="anchor" href="#rather-drive-stick" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Challenge</h3>
+<ul style="list-style: none;">
+   <li><h4>Choice of Architecture</h4>
+    <p>Since we are doing the project in a bounded amount of time, there are two parameters that we'll be using to choose 
+       the architecture of DNN that we would want to develop a parallel training algorithm for. First, an architecture that
+       is more likely to benefit from a distributed setting. From a preliminary literature survey, we have gathered that, convolutional
+       neural networks are more likely to be easily distributed as opposed to a traditional fully connected network. Since the first stage of our
+       project will be to have a single node baseline implementation, we want to choose an architecture that does not take enormous amounts of time
+       train, since we want to keep enough time for development and exploration of communication paradigms as well.</p>
+    <img src="assets/cnn.png" height="80%" width="80%"/>
+    </li>
+
+  <li><h4>Parallelism Axis</h4>
+    <p>Parallelism in the training deep neural networks can be explored along two axes. Depending on the architecture and communication
+        model we choose, the parallelism axis will affect the speedup that can be achieved by learning on a cluster as opposed to a single node.
+        The two kinds of parallelism are :
+    </p>
+     <ul> 
+      <li>Model Parallelism: <br>
+        In this type of Parallelism different parts of the model that is being learnt in the neural network are computed by different 
+          machines in the distributed system. Model parallelism is efficient when the amount of computation per neuron 
+          activity is high, because neuron activity is the unit being communicated.
+         </li>
+         <img src="assets/Model_parallelism.png" height="50%" width="50%"/>
+      <li>Data Parallelism: <br>
+         In this type of parallelism each machine in the distributed system has a copy of the entire model but the data 
+         to be trained upon is distributed over the machines and the results are combined from each. Data parallelism is efficient when the
+         amount of computation per weight is high, because the weight is the unit being communicated.</li>
+          <img src="assets/data_parallelism.png" height="50%" width="50%"/>
+    </ul>
+  <li><h4>Communication Model</h4> 
+     <p>There are many ways of communicating the gradiant values to different nodes. Not all methods of parallelism work well with all methods
+   all models of communication. It will important to analyze the structure of the cluster that the training is going to be done on, as well as architecture
+     of the network being trained(to understand the dependencies), to choose the best fit for a specific scenario. Some of the possible ways to do the same are :</p>
+    <ul> 
+    <li>Parameter Server : <br> Multiple worker nodes compute the weights and push them to a parameter server; workers can pull
+        updated weights from the parameter server. The parameter server has to do O(p) serial computation is averaging out the values from all workers where n 
+        is the number of workers. One common way to alleviate this issue is to use multiple nodes as parameter servers</li>
+      <li>Reduction Tree : <br> The reduction tree framework uses the allreduce approach, where each worker produces one or more data values that must be globally
+reduced (generally with a commutative binary element-wise operator) to produce a single result value, and then this single
+value must be broadcast to all workers before they can continue. The serial computation done by each worker remains constant as the number of workers
+        increases, but the total serial computation is 2log(p).</li>
+        <img src="assets/RedTree_Param.png" width="100%"/>
+       <li>Decentralized : <br> Another interesting communication paradigm is where all machines send to each other; advantages of 
+        this approach are majorly through compression of the updates that need to be send across to the different nodes.</li>
+        <img src="assets/decentralized.png" height="60%" width="60%"/>
+    </ul>
+    <p>A crucial part of a distributed machine learning algorithm is to decide between how frequently to synchronize, and how much of a lazy update can the network
+      endure without affecting the convergence rate and accuracy of the model</p>
+    </li>
+    
+</ul>
+<h3>
+<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Platform Choice</h3>
+        <p>GPU cluster with Cuda and MPI</p>
+<h3>
+<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Goals and Deliverables</h3>
+        <ol>
+        <li>Accurate and efficient single node implementation using GPU. This would act as our baseline implementation for the distributed version of the algorithm. We'll use the compute power of GPUs to parallelise
+            the the learning algorithm on the single node. Since we are yet to finalise our architecture, we don't have a benchmark(a standard CPU implementation) yet, against which we can test the performance our single node parallel version. We'll be updating this once we have finalised the architecture</li>
+        <li>Implementing a distributed version of the training algorithm. Exploring two different communication regimes, namely, parameter server and 
+            reduction tree. Both the regimes will implement the data-parallel approach. The reduction in training time we get will be evaluated on the basis of
+            the cost of scaling out, and the speedup.</li>    
+        <li>Accuracy Evaluation : We want to make sure that the single node GPU implementation and the distributed learning algorithm do not compromise on
+            accurancy. Hence we will be aiming to achieve an accuracy within 0.5% of accuracy achieved by the benchmark implementation on CPU. </li>
+        </ol>
+<h3>
+<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Stretch Goal</h3>
+        <ol>
+            <li>Some of literature about distributed machine learning, speaks about how model parallelism also helps in reducing training time, we would like to explore that as a part of the project, if time permits</li>
+        </ol>
+
+<h3>
+<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Schedule</h3>
+
+<table class="pure-table pure-table-horizontal">
+    <thead>
+        <tr bgcolor="#f0f0f0">
+            <th>#</th>
+            <th>Dates</th>
+            <th>Objective</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <td>1</td>
+            <td nowrap= "nowrap">April 11 - April 12</td>
+            <td>DNN Architecture and Baseline Research </td>
+            <td>Research about the different Deep Neural networks available with training datasets and decide on one. 
+                Find a training set for which performance results are available for a good serial implementation. 
+        </tr>
+
+        <tr bgcolor="#f0f0f0">
+            <td>2</td>
+            <td nowrap= "nowrap">April 13 - April 19</td>
+            <td>Single node GPU implementation</td>
+            <td>Understand the algorithms involved in the DNN and parallelize it using CUDA 
+                on a single node with GPU. Test and compare it with the best serial implementation.</td>
+       </tr>
+
+        <tr>
+            <td>3</td>
+            <td nowrap="nowrap">April 20 - April 26</td>
+            <td>Distributed Implemetation on GPU cluster - Type 1</td>
+            <td>Build a Data-Parallel Distributed version of the architecture running on a GPU cluster 
+                using the Parameter Server model. Test and compare tradeoffs in the cost and benefits of scaling out to multiple GPU nodes. </td>
+        </tr>
+        
+        <tr bgcolor="#f0f0f0">
+            <td>4</td>
+            <td nowrap="nowrap">April 27 - April 28</td>
+            <td>Distributed Implemetation on GPU cluster - Type 2</td>
+            <td>Start building a Data-Parallel Distributed version of the architecture running on a GPU cluster 
+                using the Reduced Tree model.</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td nowrap="nowrap">April 29 - May 1</td>
+            <td>Exam Preparation</td>
+            <td></td>
+        </tr>
+
+        <tr bgcolor="#f0f0f0">
+            <td>6</td>
+            <td nowrap="nowrap">May 2 - May 7</td>
+            <td>Continue Type 2 </td>
+            <td>Resume building the Reduced Tree Model. Test and compare benefits over Parameter Server Model 
+                and performance improvement over the single GPU implementation. 
+        </tr>
+
+        <tr>
+            <td>7</td>
+            <td nowrap="nowrap">May 8 - May 9</td>
+            <td>Final Result Preparation</td>
+            <td>Final report, presentation and an attempt at the stretch goal</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>
+<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resources<a name="ref"></a></h3>
+
+<ol type="1">
+<li>A standard single node CPU implementation of the training algorithm for the neural network architecture we choose. The speedup for our single node GPU implementation will be measured against this implementation.</li>
+<li><a target="_blank" href="http://engineering.skymind.io/distributed-deep-learning-part-1-an-introduction-to-distributed-training-of-neural-networks"> Skymind Engineering Blog </a></li>
+<li>FireCaffe: near-linear acceleration of deep neural network training on compute clusters</li>   
+    <li>Alex Krizhevsky, Google Inc : One weird trick for parallelizing convolutional neural networks</li>
+    <li>AlexNet : ImageNet Classification with Deep Convolutional Neural Networks</li>
+    <li>A Reliable Distributed Convolutional Neural Network for Biology Image Segmentation</li>
+</ol>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/rucha-vaidya/parallel-final">DistNet</a> is maintained by <a href="https://github.com/NasrinJaleel93">NasrinJaleel93</a> and <a href="https://github.com/rucha-vaidya">rucha-vaidya</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
