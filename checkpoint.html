@@ -30,9 +30,22 @@ We are using the following software stack
 <h3>Designing Experiments (April 18)</h3>
 	<p>We went on to design the experiments we plan to run on the AlexNet implementation</p>
 	<ul>
-	<li>Single Parameter Server, Synchronous updates</li>
-	<li>Single Parameter Server, Asynchronous updates - Type 1 </li>
-	<li>Single Parameter Server, Asynchronous updates - Type 2</li>
+	<li>Single Parameter Server, Synchronous updates
+		
+		</li>
+		
+	<li>Single Parameter Server, Asynchronous updates - Type 1 
+		<ol>
+		<li>Workers send the gradients</li>
+		<li>Server applies gradients</li>
+		<li>Worker gets the updated gradients</li>
+		</ol></li>
+	<li>Single Parameter Server, Asynchronous updates - Type 2
+		<ol>
+		<li>Workers send the gradients</li>
+		<li>Worker gets the current version of values</li>
+		<li>Server applies the gradients</li>
+		</ol></li>
 	<li>Multiple Parameter Server and Asynchronous updates</li>
 	<li>Squeeze Net - can try model parallelism? (super stretch goal)</li>
 	</ul>
