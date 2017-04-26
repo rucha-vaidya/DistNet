@@ -43,6 +43,16 @@ We are using the following software stack
 		We spent a lot of time trying various methods to do this. We tried using partial_run functionality but it did not seem to work right. 
 		We then tried to change the computational graph so that the input to apply_gradients were placeholders. And thus output from compute_gradients would be sent after it was evaluated.
 		And new values received from server would be fed into the placeholder into the apply gredients function.</p>
+
+	
+<h3>Deciding Communication and Serialization (April 24)</h3>
+	<p>Communication :
+We decided to use raw TCP sockets to communicate between the worker nodes and the parameter server. It was easy to implement and did not add any overhead</p>
+<p>Serialization :
+We experimented with JSON and Pickle as our serialization libraries. JSON turned out to be very bulky and thus not suitable after we experimented with actual data created by the worker node. We also tested some compression schemes. However it did not result in very good compression ratios. We are currently sticking to cPickle for the serialization.</p>
+	
+	<h3>Synchronous Implementation (April 25 - Present)</h3>
+	<p>We have implemented the code for Single Parameter Server Synchronous Model and are currently debugging and testing the same.</p>
 	
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/uprasad/CubeRover">CubeRover</a> is maintained by <a href="https://github.com/uprasad">uprasad</a> & <a href="https://github.com/nikithashr">nikithashr</a>.</span>
