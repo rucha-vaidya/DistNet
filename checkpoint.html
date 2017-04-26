@@ -2,17 +2,20 @@
       <h2>
 <a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a><b>Project Checkpoint</b></h2>
 
-<h3> Environment Setup (April 3 - 5) </h3>
+<h3> Deciding Dataset and Platform (April 11 - April 12) </h3>
 
-<p> As outlined in our proposal, our plan is to first have the odometry (tracking) and loop closure parts of the system full working and parallelized before we descent onto generating depth maps for a monocular camera. To obtain depth maps to work with in the beginning, we use the Kinect for Xbox 360, which generates RGB and depth images. </p>
+<p>Dataset:
+After searching about datasets we finalized the CIFAR-10 dataset for the project. We made the decision because CIFAR-10 is a image dataset on which we could use convolutional neural networks. And since CIFAR-10 has 32x32 images, the single node version train in a reasonable amount of time</p>
 
-<p> We borrowed Kayvon's Jetson Tegra K1 development kit for the project. We access the Tegra K1 by connecting it to the internet via Ethernet, and ssh-ing into it from a machine connected to the same LAN. The Tegra K1 had been flashed with the Linux for Tegra (L4T) release R19. So we installed the following software on the Tegra: </p>
+<p>Platform:
+Before decided to use CUDA and openMPI, but since our main focus was on distributing machine learning on several nodes, we didn't want to spend a lot of time, creating different layers of the architecture. We chose to use a machine learning framework that would help us with building the network architecture. Since neither of us had experience working on any deep learning framework, we decided to chose one that had good documentation and strong userbase, and hence finalized on Tensorflow</p>
+We are using the following software stack
 <ul>
-	<li> CUDA Toolkit 6.0 </li>
-	<li> OpenCV 2.4.9 </li>
-	<li> OpenKinect's libfreenect library </li>
+	<li> Tensorflow 1.0 </li>
+	<li> cuDNN 5.1 </li>
+	<li> CUDA 8.0 </li>
 </ul>
-<p> We managed to get libfreenect working with the Kinect, and subsequently with OpenCV as well. We now have RGB and depth images streaming from the Kinect using OpenCV code. The next steps will be to explore OpenCV's CUDA packages to avoid implementing any redundant functions. At any rate, we will look to improve the OpenCV implementations. We will also try to chart out a pseudo-code for the tracking algorithm, and begin its basic implementation soon. </p>
+<p> We were initially going to test our implementation on the latedays cluster, but decided to use the AWS cloud/Google cloud platform instead</p>
 
 
 <h3> Testing the Benchmark Code (April 9 - 11) </h3>
