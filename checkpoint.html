@@ -18,17 +18,14 @@ We are using the following software stack
 <p> We were initially going to test our implementation on the latedays cluster, but decided to use the AWS cloud/Google cloud platform instead</p>
 
 
-<h3> Testing the Benchmark Code (April 9 - 11) </h3>
+<h3> Deciding Architecture (April 13 - April 16)</h3>
 
 <p>After survey of architectures to experiment on, we decided on Squeezenet as our architecture because of its small size and accuracy similar to Alexnet. Since the number of parameters were minimal, it has a higher chance training speedup due to cluster training. But we were not able to get a the baseline version running on the current version of TensorFlow. Since we were new to TensorFlow, were having to spend lot of time trying to debug the SqueezeNet starter code. To give ourselves more time to work
 	on actually building a distributed algorithm, we shifted to a tried and tested Alexnet implementation. We might consider testing our distributed training model for Squeezenet if time permits </p>
 	
 	
-<h3> Revised Project Goals and Parallelism Competition (Present - May 11) </h3>
-<ul>
-	<li> We believe that we will be able to produce real-time CPU and GPU implementation of Visual Odometry. Once we have this working, we will move on to the next phase, where we will be working on Loop closure. </li>
-	<li> We intend to show a demo of real time camera tracking on CPU and GPU. We also intend to show a comparison between pure CPU and GPU based on energy consumption </li>
-</ul>
+<h3> Single GPU Implementation (April 17) </h3>
+<p>We ran the single GPU implementation of AlexNet on GHC machine. This is our baseline to compare our distributed version. The time taken by this implementation is  2.5 hours. </p>
 
 
 
