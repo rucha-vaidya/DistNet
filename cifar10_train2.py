@@ -49,7 +49,7 @@ import tensorflow as tf
 import cifar10
 
 TCP_IP = '127.0.0.1'
-TCP_PORT = 5010
+TCP_PORT = 5012
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -171,11 +171,11 @@ def train():
         to_send_size = sys.getsizeof(send_data)
         # Sending the size of the gradients first
         send_size = pickle.dumps(to_send_size, pickle.HIGHEST_PROTOCOL)
-        s.send(send_size)
+        s.sendall(send_size)
         print("Size esending : ", to_send_size)
         print("Size of size ", sys.getsizeof(send_size)) 
         # sending the gradients
-        s.send(send_data)
+        s.sendall(send_data)
         recv_data = safe_recv(to_send_size, s)
         s.close()
         gradients2 = pickle.loads(recv_data)
