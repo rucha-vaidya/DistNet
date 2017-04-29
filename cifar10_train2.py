@@ -49,7 +49,9 @@ import tensorflow as tf
 import cifar10
 
 TCP_IP = '127.0.0.1'
-TCP_PORT = 5012
+TCP_PORT = 5014
+
+port = 0
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -63,7 +65,7 @@ tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
 tf.app.flags.DEFINE_integer('log_frequency', 1,
                             """How often to log results to the console.""")
-
+gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.25)
 def safe_recv(size, server_socket):
   data = ''
   temp = ''
@@ -155,16 +157,16 @@ def train():
                tf.train.NanTensorHook(loss),
                _LoggerHook()],
         config=tf.ConfigProto(
-            log_device_placement=FLAGS.log_device_placement)) as mon_sess:
+            log_device_placement=FLAGS.log_device_placement, gpu_options=gpu_options)) as mon_sess:
 
-     
+      global port
       while not mon_sess.should_stop():
         
         gradients = mon_sess.run(only_gradients,feed_dict = feed_dict)
 
         # Opening the socket and connecting to server
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((TCP_IP, TCP_PORT))
+        s.connect((TCP_IP, port))
         # pickling the gradients
         send_data = pickle.dumps(gradients,pickle.HIGHEST_PROTOCOL)
         # finding size of pickled gradients
@@ -192,6 +194,12 @@ def train():
         res = mon_sess.run(train_op, feed_dict=feed_dict)
 
 def main(argv=None):  # pylint: disable=unused-argument
+  global port
+  if(len(sys.argv) != 3):
+      print("<port>, <worker_id> required")
+      sys.exit()
+  port = int(sys.argv[2]) + int(sys.argv[1]) 
+  print("Connecting to port ", port)
   cifar10.maybe_download_and_extract()
   if tf.gfile.Exists(FLAGS.train_dir):
     tf.gfile.DeleteRecursively(FLAGS.train_dir)

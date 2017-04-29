@@ -9,9 +9,9 @@ from multiprocessing import Process, Queue, Value, Manager
 from ctypes import c_char_p
 
 TCP_IP = '127.0.0.1'
-TCP_PORT = 5012
+TCP_PORT = 5014
 BUFFER_SIZE = 20  # Normally 1024, but we want fast response
-MAX_NUMBER_WORKERS = 1
+MAX_NUMBER_WORKERS = 2
 ZERO = 0
 
 def add_local_gradients(global_sum, local_gradients):
@@ -31,7 +31,7 @@ def zero_gradients(global_sum):
     for i, grad in enumerate(global_sum):
         global_sum[i].fill(0)
 
-def safeReceive(size,client_socket):
+def safeReceive(size,client_socket,port):
     received_size = 0
     data = ''
     temp = ''
@@ -40,7 +40,7 @@ def safeReceive(size,client_socket):
             temp = client_socket.recv(1024)
             data += temp
             received_size = sys.getsizeof(data)
-            print("Received: ", received_size,sys.getsizeof(data),sys.getsizeof(temp))
+            print(port, ": Received: ", received_size,sys.getsizeof(data),sys.getsizeof(temp))
 
             if(received_size >= size):
                 break
@@ -50,24 +50,32 @@ def safeReceive(size,client_socket):
     return data
  
 
-def handleClient(conn,addr,gradients_q,done_flag,global_avg,ack_q):
-    size = safeReceive(45,conn)
-    size = pickle.loads(size)
-    print("Received the size of gradient ", size)
-    data = safeReceive(size,conn)
-    print("Got the data")
-    local_worker_gradients = pickle.loads(data)
-    print("Sending grad of length ", len(local_worker_gradients) , " to queue")
-    #print(type(local_worker_gradients))
-    gradients_q.put(local_worker_gradients)
-    while(done_flag.value == 0):
-        pass
-    conn.sendall(global_avg.value)
-    conn.close()
-    ack_q.put(1)
-    quit()
+def handleWorker(port,gradients_q,done_flag,global_avg,ack_q):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    print("Connecting to port : ", port)
+    s.bind((TCP_IP, port))
+    s.listen(1)
 
-def aggregateSum(radients_q,done_flag, global_avg,ack_q):
+    while 1:
+        conn, addr = s.accept()
+        print 'Connection address:', addr
+            
+        size = safeReceive(45,conn,port)
+        size = pickle.loads(size)
+        print("Received the size of gradient ", size)
+        data = safeReceive(size,conn,port)
+        print("Got the data")
+        local_worker_gradients = pickle.loads(data)
+        print("Sending grad of length ", len(local_worker_gradients) , " to queue")
+        gradients_q.put(local_worker_gradients)
+        while(done_flag.value == 0):
+            pass
+        conn.sendall(global_avg.value)
+        conn.close()
+        ack_q.put(1)
+    s.close()
+
+def aggregateSum(gradients_q,done_flag, global_avg,ack_q):
     print("Aggregating process started")
     while(1):
         global_sum = []
@@ -92,12 +100,12 @@ def aggregateSum(radients_q,done_flag, global_avg,ack_q):
             
 
 
-if __name__=='__main__':
-
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind((TCP_IP, TCP_PORT))
-    s.listen(1)
-
+def main(argv=None):
+    if(len(sys.argv) != 3):
+        print("Port number and number of workers required")
+        sys.exit()
+    global MAX_NUMBER_WORKERS
+    MAX_NUMBER_WORKERS = int(sys.argv[2])
     manager = Manager()
     global_avg = manager.Value(c_char_p, "")
     done_flag = manager.Value('i', 0)
@@ -107,13 +115,16 @@ if __name__=='__main__':
 
     master_process = Process(target=aggregateSum, args=(gradients_q,done_flag, global_avg, ack_q))
     master_process.start()
-
-
-    while 1:
-        conn, addr = s.accept()
-        local_conn = conn
-        print 'Connection address:', addr
-        p = Process(target=handleClient, args=(local_conn,addr,gradients_q,done_flag,global_avg, ack_q))
+    port = int(sys.argv[1])
+    
+    for i in xrange(MAX_NUMBER_WORKERS):
+        process_port = port + i
+        p = Process(target=handleWorker, args=(process_port,gradients_q,done_flag,global_avg, ack_q))
         p.start()
-        
-    s.close()
+
+    while(1):
+        pass
+
+if __name__ == "__main__":
+        main(sys.argv)
+
