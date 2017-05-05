@@ -40,7 +40,7 @@ def safeReceive(size,client_socket):
             temp = client_socket.recv(size-len(data))
             data += temp
             received_size = len(data)
-            print("Received: ", received_size,len(data),len(temp))
+            #print("Received: ", received_size,len(data),len(temp))
 
             if(received_size >= size):
                 break
@@ -53,11 +53,11 @@ def safeReceive(size,client_socket):
 def handleClient(conn,addr,gradients_q,done_flag,global_avg,ack_q):
     size = safeReceive(8,conn)
     size = pickle.loads(size)
-    print("Received the size of gradient ", size)
+    #print("Received the size of gradient ", size)
     data = safeReceive(size,conn)
-    print("Got the data")
+    #print("Got the data")
     local_worker_gradients = pickle.loads(data)
-    print("Sending grad of length ", len(local_worker_gradients) , " to queue")
+    #print("Sending grad of length ", len(local_worker_gradients) , " to queue")
     #print(type(local_worker_gradients))
     gradients_q.put(local_worker_gradients)
     while(done_flag.value == 0):
@@ -71,27 +71,27 @@ def handleClient(conn,addr,gradients_q,done_flag,global_avg,ack_q):
     quit()
 
 def aggregateSum(radients_q,done_flag, global_avg,ack_q):
-    print("Aggregating process started")
+    #print("Aggregating process started")
     while(1):
         global_sum = []
             
         for i in xrange(MAX_NUMBER_WORKERS):
             local_worker_gradients = gradients_q.get()
-            print("got gradient ", i)
+            #print("got gradient ", i)
         
             if(i == 0):
                 global_sum = local_worker_gradients
             else:
                 add_local_gradients(global_sum, local_worker_gradients) 
 
-        print("Got all gradients, averaging them")
+        #print("Got all gradients, averaging them")
         avg = average_gradients(global_sum)
         global_avg.value = pickle.dumps(avg, pickle.HIGHEST_PROTOCOL)
         done_flag.value = 1
         for i in xrange(MAX_NUMBER_WORKERS):
             val = ack_q.get()
         done_flag.value = 0
-        print("Iteration complete")
+        #print("Iteration complete")
             
 
 

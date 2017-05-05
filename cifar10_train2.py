@@ -57,7 +57,7 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 100,
+tf.app.flags.DEFINE_integer('max_steps', 100000,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
@@ -126,11 +126,11 @@ def train():
       def begin(self):
         self._step = -1
         self._start_time = time.time()
-        print("session begun")
+        #print("session begun")
 
       def before_run(self, run_context):
         self._step += 1
-        print("before run")
+        #print("before run")
         return tf.train.SessionRunArgs(loss)  # Asks for loss value.
         
 
@@ -172,8 +172,8 @@ def train():
         # Sending the size of the gradients first
         send_size = pickle.dumps(to_send_size, pickle.HIGHEST_PROTOCOL)
         s.sendall(send_size)
-        print("Size esending : ", to_send_size)
-        print("Size of size ", len(send_size)) 
+        #print("Size esending : ", to_send_size)
+        #print("Size of size ", len(send_size)) 
         # sending the gradients
         s.sendall(send_data)
         recv_data_size_pickle = safe_recv(8,s)
@@ -182,14 +182,14 @@ def train():
 
         s.close()
         gradients2 = pickle.loads(recv_data)
-        print("Recevied gradients of size: ", len(recv_data))
+        #print("Recevied gradients of size: ", len(recv_data))
         feed_dict = {}
        
 
         for i,grad_var in enumerate(gradients2): 
            feed_dict[placeholder_gradients[i][0]] = gradients2[i]
-           print(gradients[i].shape)
-           print(gradients2[i].shape)
+           #print(gradients[i].shape)
+           #print(gradients2[i].shape)
 
 
         res = mon_sess.run(train_op, feed_dict=feed_dict)
