@@ -115,10 +115,22 @@ def train():
   
     train_op = cifar10.train_part2(global_step,placeholder_gradients)
 
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    feeds = []
+    print("Reached here")
+    for i,grad_var in enumerate(grads): 
+        feeds.append(placeholder_gradients[i][0])
     # Partial Run
-    h = sess.partial_run_setup([grads, train_op], [global_step, loss, placeholder_gradients])
+    print("Reached here", len(feeds))
+    for x in feeds:
+        print(x,)
+    h = sess.partial_run_setup([only_gradients, train_op], feeds)
+    print("Reached here")
+
+
     for i in xrange(10):
-        res_grads = sess.partial_run(h, grads, feed_dict = feed_dict)
+        res_grads = sess.partial_run(h, only_gradients, feed_dict = feed_dict)
 
         feed_dict = {}
         for i,grad_var in enumerate(res_grads): 
@@ -140,11 +152,15 @@ def main(argv=None):  # pylint: disable=unused-argument
     tf.gfile.DeleteRecursively(FLAGS.train_dir)
   tf.gfile.MakeDirs(FLAGS.train_dir)
   total_start_time = time.time()
+  '''
   # Opening the socket and connecting to server
   s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
   s.connect((TCP_IP, port))
+  '''
   train()
+  '''
   s.close()
+  '''
   print("--- %s seconds ---" % (time.time() - total_start_time))
 
 
