@@ -52,6 +52,7 @@ TCP_IP = '127.0.0.1'
 TCP_PORT = 5014
 
 port = 0
+s = 0
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -59,22 +60,22 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 10,
+tf.app.flags.DEFINE_integer('max_steps', 100000,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
-tf.app.flags.DEFINE_integer('log_frequency', 1,
+tf.app.flags.DEFINE_integer('log_frequency', 10,
                             """How often to log results to the console.""")
-gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.25)
+gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.40)
 def safe_recv(size, server_socket):
   data = ''
   temp = ''
   recv_size = 0
   while 1:
     try:
-        temp = server_socket.recv(1024)
+        temp = server_socket.recv(size-len(data))
         data += temp
-        recv_size = sys.getsizeof(data)
+        recv_size = len(data)
         if recv_size >= size:
             break
     except:
@@ -128,11 +129,9 @@ def train():
       def begin(self):
         self._step = -1
         self._start_time = time.time()
-        print("session begun")
 
       def before_run(self, run_context):
         self._step += 1
-        print("before run")
         return tf.train.SessionRunArgs(loss)  # Asks for loss value.
         
 
@@ -163,38 +162,34 @@ def train():
       while not mon_sess.should_stop():
         
         gradients = mon_sess.run(only_gradients,feed_dict = feed_dict)
-
-        # Opening the socket and connecting to server
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((TCP_IP, port))
         # pickling the gradients
         send_data = pickle.dumps(gradients,pickle.HIGHEST_PROTOCOL)
         # finding size of pickled gradients
-        to_send_size = sys.getsizeof(send_data)
+        to_send_size = len(send_data)
         # Sending the size of the gradients first
         send_size = pickle.dumps(to_send_size, pickle.HIGHEST_PROTOCOL)
         s.sendall(send_size)
-        print("Size esending : ", to_send_size)
-        print("Size of size ", sys.getsizeof(send_size)) 
         # sending the gradients
         s.sendall(send_data)
-        recv_data = safe_recv(to_send_size, s)
-        s.close()
+        recv_size = safe_recv(8, s)
+        recv_size = pickle.loads(recv_size)
+        recv_data = safe_recv(recv_size, s)
         gradients2 = pickle.loads(recv_data)
-        print("Recevied gradients of size: ", sys.getsizeof(recv_data))
+        #print("Recevied gradients of size: ", len(recv_data))
         feed_dict = {}
        
 
         for i,grad_var in enumerate(gradients2): 
            feed_dict[placeholder_gradients[i][0]] = gradients2[i]
-           print(gradients[i].shape)
-           print(gradients2[i].shape)
+           #print(gradients[i].shape)
+           #print(gradients2[i].shape)
 
 
         res = mon_sess.run(train_op, feed_dict=feed_dict)
 
 def main(argv=None):  # pylint: disable=unused-argument
   global port
+  global s
   if(len(sys.argv) != 3):
       print("<port>, <worker_id> required")
       sys.exit()
@@ -205,7 +200,11 @@ def main(argv=None):  # pylint: disable=unused-argument
     tf.gfile.DeleteRecursively(FLAGS.train_dir)
   tf.gfile.MakeDirs(FLAGS.train_dir)
   total_start_time = time.time()
+  # Opening the socket and connecting to server
+  s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  s.connect((TCP_IP, port))
   train()
+  s.close()
   print("--- %s seconds ---" % (time.time() - total_start_time))
 
 

@@ -20,27 +20,23 @@ def add_local_gradients(global_sum, local_gradients):
 
 def average_gradients(global_sum):
     global_avg = global_sum
-    #print("length of average is ,",len(global_avg))
-    #print(global_avg[9])
     for i,grad in enumerate(global_sum):
         global_avg[i] = grad / MAX_NUMBER_WORKERS
-    #print(global_avg[9])
     return global_avg
 
 def zero_gradients(global_sum):
     for i, grad in enumerate(global_sum):
         global_sum[i].fill(0)
 
-def safeReceive(size,client_socket,port):
-    received_size = 0
+def safe_recv(size,client_socket):
+    recv_size = 0
     data = ''
     temp = ''
     while 1:
         try:
-            temp = client_socket.recv(1024)
+            temp = client_socket.recv(size-len(data))
             data += temp
-            received_size = sys.getsizeof(data)
-            print(port, ": Received: ", received_size,sys.getsizeof(data),sys.getsizeof(temp))
+            received_size = len(data)
 
             if(received_size >= size):
                 break
@@ -55,50 +51,48 @@ def handleWorker(port,gradients_q,done_flag,global_avg,ack_q):
     print("Connecting to port : ", port)
     s.bind((TCP_IP, port))
     s.listen(1)
+    conn, addr = s.accept()
+    print 'Connection address:', addr
 
     while 1:
-        conn, addr = s.accept()
-        print 'Connection address:', addr
             
-        size = safeReceive(45,conn,port)
+        size = safe_recv(8,conn)
         size = pickle.loads(size)
-        print("Received the size of gradient ", size)
-        data = safeReceive(size,conn,port)
-        print("Got the data")
+        #print("Received the size of gradient ", size)
+        data = safe_recv(size,conn)
+        #print("Got the data")
         local_worker_gradients = pickle.loads(data)
-        print("Sending grad of length ", len(local_worker_gradients) , " to queue")
         gradients_q.put(local_worker_gradients)
         while(done_flag.value == 0):
             pass
+        size = len(global_avg.value)
+        size = pickle.dumps(size, pickle.HIGHEST_PROTOCOL)
+        conn.sendall(size)
         conn.sendall(global_avg.value)
-        conn.close()
         ack_q.put(1)
+    conn.close()
     s.close()
 
 def aggregateSum(gradients_q,done_flag, global_avg,ack_q):
-    print("Aggregating process started")
     while(1):
         global_sum = []
-            
         for i in xrange(MAX_NUMBER_WORKERS):
             local_worker_gradients = gradients_q.get()
-            print("got gradient ", i)
+            #print("got gradient ", i)
         
             if(i == 0):
                 global_sum = local_worker_gradients
             else:
                 add_local_gradients(global_sum, local_worker_gradients) 
 
-        print("Got all gradients, averaging them")
         avg = average_gradients(global_sum)
         global_avg.value = pickle.dumps(avg, pickle.HIGHEST_PROTOCOL)
         done_flag.value = 1
         for i in xrange(MAX_NUMBER_WORKERS):
             val = ack_q.get()
         done_flag.value = 0
-        print("Iteration complete")
+        #print("Iteration complete")
             
-
 
 def main(argv=None):
     if(len(sys.argv) != 3):
