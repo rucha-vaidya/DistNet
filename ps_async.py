@@ -58,11 +58,11 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 51,
+tf.app.flags.DEFINE_integer('max_steps', 100001,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
-tf.app.flags.DEFINE_integer('log_frequency', 10,
+tf.app.flags.DEFINE_integer('log_frequency', 100,
                             """How often to log results to the console.""")
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.25)
 
@@ -138,6 +138,7 @@ def train():
         config=tf.ConfigProto(
             log_device_placement=FLAGS.log_device_placement, gpu_options=gpu_options)) as mon_sess:
       #print("Just started")
+
       for v in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES):
           print(v)
       # Sending the initial value of variables
@@ -154,10 +155,10 @@ def train():
         conn.close()
       #print("Sent initial var values to workers")
       while not mon_sess.should_stop():
-
-        if(mon_sess.run(global_step, feed_dict=feed_dict) == 50):
+        val = mon_sess.run(global_step, feed_dict=feed_dict)
+        if(val == (FLAGS.max_steps - 1)):
+            print("Global step val while stoping.")
             sys.exit()
-
         conn, addr = s.accept()
         size = safe_recv(8, conn)
         size = pickle.loads(size)
@@ -176,19 +177,18 @@ def train():
                 print(val)
             i=i+1
         '''
-        res = mon_sess.run([train_op,increment_global_step_op], feed_dict=feed_dict)
+        res = mon_sess.run(train_op, feed_dict=feed_dict)
         var_val = []
         #print("Run complete with new values")
-        if(not mon_sess.should_stop()):
-            for v in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES):
-                var_val.append(mon_sess.run(v, feed_dict=feed_dict))
-            send_data = pickle.dumps(var_val, pickle.HIGHEST_PROTOCOL)
-            size = len(send_data)
-            size = pickle.dumps(size, pickle.HIGHEST_PROTOCOL)
-            conn.sendall(size)
-            conn.sendall(send_data)
-            conn.close()
-            #print("New values of variables sent ")
+        for v in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES):
+            var_val.append(mon_sess.run(v, feed_dict=feed_dict))
+        send_data = pickle.dumps(var_val, pickle.HIGHEST_PROTOCOL)
+        size = len(send_data)
+        size = pickle.dumps(size, pickle.HIGHEST_PROTOCOL)
+        conn.sendall(size)
+        conn.sendall(send_data)
+        conn.close()
+        #print("New values of variables sent ")
 
 
 def main(argv=None):  # pylint: disable=unused-argument
