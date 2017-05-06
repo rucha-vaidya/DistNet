@@ -60,13 +60,13 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 50,
+tf.app.flags.DEFINE_integer('max_steps', 100000,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
 tf.app.flags.DEFINE_integer('log_frequency', 10,
                             """How often to log results to the console.""")
-gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.25)
+gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.40)
 def safe_recv(size, server_socket):
   data = ''
   temp = ''
@@ -87,13 +87,10 @@ def train():
 
   g1 = tf.Graph()
   with g1.as_default():
-    #global_step = tf.contrib.framework.get_or_create_global_step()
-    
-    global_step = tf.Variable(-1, name='global_step', trainable=False, dtype=tf.int32)
-    increment_global_step_op = tf.assign(global_step, global_step+1)
+    global_step = tf.contrib.framework.get_or_create_global_step()
 
     # Get images and labels for CIFAR-10.
-    images, labels = cifar10.distorted_inputs()
+    images, labels = cifar10.distorted_inputs2()
 
     # Build a Graph that computes the logits predictions from the
     # inference model.
@@ -104,6 +101,27 @@ def train():
     grads  = cifar10.train_part1(loss, global_step)
 
     only_gradients = [g for g,_ in grads]
+    only_vars = [v for _,v in grads]
+
+       
+    placeholder_gradients = []
+
+    #with tf.device("/gpu:0"):
+    for grad_var in grads :
+        placeholder_gradients.append((tf.placeholder('float', shape=grad_var[0].get_shape()) ,grad_var[1]))
+
+ 
+    
+    feed_dict = {}
+       
+    for i,grad_var in enumerate(grads): 
+       feed_dict[placeholder_gradients[i][0]] = np.zeros(placeholder_gradients[i][0].shape)
+      
+  
+  
+    # Build a Graph that trains the model with one batch of examples and
+    # updates the model parameters.
+    train_op = cifar10.train_part2(global_step,placeholder_gradients)
 
     class _LoggerHook(tf.train.SessionRunHook):
       """Logs loss and runtime."""
@@ -139,66 +157,54 @@ def train():
                _LoggerHook()],
         config=tf.ConfigProto(
             log_device_placement=FLAGS.log_device_placement, gpu_options=gpu_options)) as mon_sess:
+
       global port
-      s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      s.connect((TCP_IP, port))
-      #receiving the variable values
-      recv_size = safe_recv(8, s)
-      recv_size = pickle.loads(recv_size)
-      recv_data = safe_recv(recv_size, s)
-      var_vals = pickle.loads(recv_data)
-      s.close()
-      feed_dict = {}
-      i=0
-      for v in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES):
-        feed_dict[v] = var_vals[i]
-        i=i+1
-      print("Received variable values from ps")
-
       while not mon_sess.should_stop():
-        gradients = mon_sess.run([only_gradients,increment_global_step_op], feed_dict=feed_dict)
-        #print("Sending grads")
-
-        # Opening the socket and connecting to server
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((TCP_IP, port))
-        # sending the gradients
+        
+        gradients = mon_sess.run(only_gradients,feed_dict = feed_dict)
+        # pickling the gradients
         send_data = pickle.dumps(gradients,pickle.HIGHEST_PROTOCOL)
+        # finding size of pickled gradients
         to_send_size = len(send_data)
+        # Sending the size of the gradients first
         send_size = pickle.dumps(to_send_size, pickle.HIGHEST_PROTOCOL)
-        #print("size of grads: ", to_send_size)
         s.sendall(send_size)
-        #print("Size of size: ", len(send_size))
+        # sending the gradients
         s.sendall(send_data)
-        #print("sent grads")
-        #receiving the variable values
         recv_size = safe_recv(8, s)
         recv_size = pickle.loads(recv_size)
         recv_data = safe_recv(recv_size, s)
-        var_vals = pickle.loads(recv_data)
-        s.close()
-        #print("recved grads")
-        
+        gradients2 = pickle.loads(recv_data)
+        #print("Recevied gradients of size: ", len(recv_data))
         feed_dict = {}
-        i=0
-        for v in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES):
-           feed_dict[v] = var_vals[i]
-           i=i+1
+       
+
+        for i,grad_var in enumerate(gradients2): 
+           feed_dict[placeholder_gradients[i][0]] = gradients2[i]
+           #print(gradients[i].shape)
+           #print(gradients2[i].shape)
+
+
+        res = mon_sess.run(train_op, feed_dict=feed_dict)
 
 def main(argv=None):  # pylint: disable=unused-argument
   global port
   global s
-  if(len(sys.argv) != 2):
-      print("<port> required")
+  if(len(sys.argv) != 3):
+      print("<port>, <worker_id> required")
       sys.exit()
-  port = int(sys.argv[1]) 
+  port = int(sys.argv[2]) + int(sys.argv[1]) 
   print("Connecting to port ", port)
   cifar10.maybe_download_and_extract()
   if tf.gfile.Exists(FLAGS.train_dir):
     tf.gfile.DeleteRecursively(FLAGS.train_dir)
   tf.gfile.MakeDirs(FLAGS.train_dir)
   total_start_time = time.time()
+  # Opening the socket and connecting to server
+  s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  s.connect((TCP_IP, port))
   train()
+  s.close()
   print("--- %s seconds ---" % (time.time() - total_start_time))
 
 

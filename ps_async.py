@@ -58,7 +58,7 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 500,
+tf.app.flags.DEFINE_integer('max_steps', 51,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
@@ -88,8 +88,12 @@ def train():
   with g1.as_default():
     # Build a Graph that trains the model with one batch of examples and
     # updates the model parameters.
-    global_step = tf.contrib.framework.get_or_create_global_step()
+    #global_step = tf.contrib.framework.get_or_create_global_step()
 
+    
+    global_step = tf.Variable(-1, name='global_step', trainable=False, dtype=tf.int32)
+    increment_global_step_op = tf.assign(global_step, global_step+1)
+    
     cifar10.build_graph()
        
     placeholder_gradients = []
@@ -150,6 +154,10 @@ def train():
         conn.close()
       #print("Sent initial var values to workers")
       while not mon_sess.should_stop():
+
+        if(mon_sess.run(global_step, feed_dict=feed_dict) == 50):
+            sys.exit()
+
         conn, addr = s.accept()
         size = safe_recv(8, conn)
         size = pickle.loads(size)
@@ -168,7 +176,7 @@ def train():
                 print(val)
             i=i+1
         '''
-        res = mon_sess.run(train_op, feed_dict=feed_dict)
+        res = mon_sess.run([train_op,increment_global_step_op], feed_dict=feed_dict)
         var_val = []
         #print("Run complete with new values")
         if(not mon_sess.should_stop()):
