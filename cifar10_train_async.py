@@ -155,7 +155,7 @@ def train():
         i=i+1
       print("Received variable values from ps")
       while not mon_sess.should_stop():
-        gradients, step_val = mon_sess.run([only_gradients,increment_global_step_op])
+        gradients, step_val = mon_sess.run([only_gradients,increment_global_step_op], feed_dict=feed_dict)
         #gradients, step_val = mon_sess.run([only_gradients,increment_global_step_op], feed_dict=feed_dict)
         #print("Sending grads")
         # Opening the socket and connecting to server
