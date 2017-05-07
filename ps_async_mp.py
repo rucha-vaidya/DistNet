@@ -91,14 +91,16 @@ def handleWorker(port,gradients_q,global_var_vals):
 
     while 1:
         conn, addr = s.accept()
-        print('Connection address:', addr)
+        #print('Connection address:', addr)
             
         size = safe_recv(8,conn)
         size = pickle.loads(size)
         data = safe_recv(size,conn)
+        #print("Received size: ", size)
         local_worker_gradients = pickle.loads(data)
         gradients_q.put(local_worker_gradients)
         size = len(global_var_vals.value)
+        #print("Global var val size: ", size)
         size = pickle.dumps(size, pickle.HIGHEST_PROTOCOL)
         conn.sendall(size)
         conn.sendall(global_var_vals.value)
@@ -170,6 +172,8 @@ def train():
       for v in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES):
         var_val.append(mon_sess.run(v, feed_dict=feed_dict))
       send_data = pickle.dumps(var_val, pickle.HIGHEST_PROTOCOL)
+      global global_var_vals
+      global_var_vals.value = send_data
       size = len(send_data)
       size = pickle.dumps(size, pickle.HIGHEST_PROTOCOL)
       for i in xrange(MAX_WORKERS):
@@ -180,6 +184,7 @@ def train():
       print("Sent initial var values to workers")
       while not mon_sess.should_stop():
         val = mon_sess.run(global_step, feed_dict=feed_dict)
+        #print("Iteration: ", val)
         if(val == (FLAGS.max_steps - 1)):
             print("Global step val while stoping.")
             sys.exit()
@@ -188,20 +193,13 @@ def train():
         feed_dict = {}
         for i,grad_var in enumerate(recv_grads): 
            feed_dict[placeholder_gradients[i][0]] = recv_grads[i]
-        '''
-        print("Before Values: ")
-        i = 0
-        for v in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES):
-            val = mon_sess.run(v, feed_dict=feed_dict)
-            if(i == 9):
-                print(val)
-            i=i+1
-        '''
+
         res = mon_sess.run(train_op, feed_dict=feed_dict)
         var_val = []
         #print("Run complete with new values")
         for v in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES):
             var_val.append(mon_sess.run(v, feed_dict=feed_dict))
+        global global_var_vals
         global_var_vals.value = pickle.dumps(var_val, pickle.HIGHEST_PROTOCOL)
         #print("New values of variables sent ")
 

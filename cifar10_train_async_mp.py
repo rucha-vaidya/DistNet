@@ -67,7 +67,7 @@ tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
 tf.app.flags.DEFINE_integer('log_frequency', 10,
                             """How often to log results to the console.""")
-gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.25)
+gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.45)
 def safe_recv(size, server_socket):
   data = ''
   temp = ''
@@ -156,9 +156,9 @@ def train():
         i=i+1
       print("Received variable values from ps")
       while not mon_sess.should_stop():
-        gradients, step_val = mon_sess.run([only_gradients,increment_global_step_op])
+        gradients, step_val = mon_sess.run([only_gradients,increment_global_step_op], feed_dict=feed_dict)
         #gradients, step_val = mon_sess.run([only_gradients,increment_global_step_op], feed_dict=feed_dict)
-        print("Sending grads")
+        #print("Sending grads port: ", port)
         # Opening the socket and connecting to server
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((TCP_IP, port))
@@ -170,14 +170,14 @@ def train():
         s.sendall(send_size)
         #print("Size of size: ", len(send_size))
         s.sendall(send_data)
-        print("sent grads")
+        #print("sent grads")
         #receiving the variable values
         recv_size = safe_recv(8, s)
         recv_size = pickle.loads(recv_size)
         recv_data = safe_recv(recv_size, s)
         var_vals = pickle.loads(recv_data)
         s.close()
-        print("recved grads")
+        #print("recved grads")
         
         feed_dict = {}
         i=0
