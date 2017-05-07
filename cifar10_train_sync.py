@@ -61,7 +61,7 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 50,
+tf.app.flags.DEFINE_integer('max_steps', 50000,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
@@ -160,7 +160,7 @@ def train():
       s.connect((TCP_IP, port))
       while not mon_sess.should_stop():
         gradients, step_val = mon_sess.run([only_gradients,increment_global_step_op], feed_dict=feed_dict)
-        print("iteration: ", step_val)
+        #print("iteration: ", step_val)
         #print("Sending grads port: ", port)
         # sending the gradients
         send_data = pickle.dumps(gradients,pickle.HIGHEST_PROTOCOL)
@@ -176,7 +176,7 @@ def train():
         recv_size = pickle.loads(recv_size)
         recv_data = safe_recv(recv_size, s)
         var_vals = pickle.loads(recv_data)
-        print("recved grads")
+        #print("recved grads")
         
         feed_dict = {}
         i=0
