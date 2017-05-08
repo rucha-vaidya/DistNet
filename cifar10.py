@@ -209,6 +209,11 @@ def build_graph_part1():
                                          stddev=5e-2,
                                          wd=0.0)
     biases = _variable_on_cpu('biases', [64], tf.constant_initializer(0.1))
+  # local3
+  with tf.variable_scope('local3') as scope:
+    # Move everything into depth so we can perform a single matrix multiply.
+    weights = _variable_with_weight_decay('weights', shape=[2304, 384],
+                                          stddev=0.04, wd=0.004)
 
 
 def build_graph_part2():
@@ -223,9 +228,6 @@ def build_graph_part2():
 
   # local3
   with tf.variable_scope('local3') as scope:
-    # Move everything into depth so we can perform a single matrix multiply.
-    weights = _variable_with_weight_decay('weights', shape=[2304, 384],
-                                          stddev=0.04, wd=0.004)
     biases = _variable_on_cpu('biases', [384], tf.constant_initializer(0.1))
 
   # local4

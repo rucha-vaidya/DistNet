@@ -56,6 +56,7 @@ port_ps2 = 0
 port_main_1 = 0
 port_main_2 = 0
 s = 0
+half_index = 5
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -63,13 +64,13 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 100000,
+tf.app.flags.DEFINE_integer('max_steps', 50000,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
 tf.app.flags.DEFINE_integer('log_frequency', 10,
                             """How often to log results to the console.""")
-gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.45)
+gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.20)
 def safe_recv(size, server_socket):
   data = ''
   temp = ''
@@ -162,16 +163,17 @@ def train():
       feed_dict = {}
       i=0
       for v in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES):
-        if(i < 4):
+        if(i < half_index):
             feed_dict[v] = var_vals_1[i]
         else:
-            feed_dict[v] = var_vals_2[i-4]
+            feed_dict[v] = var_vals_2[i-half_index]
         i=i+1
       print("Received variable values from ps")
       s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
       s1.connect((TCP_IP, port_ps1))
       s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
       s2.connect((TCP_IP, port_ps2))
+      print("Connected to both PSs")
       while not mon_sess.should_stop():
         gradients, step_val = mon_sess.run([only_gradients,increment_global_step_op], feed_dict=feed_dict)
         #print("Sending grads port: ", port)
@@ -181,19 +183,19 @@ def train():
         grad_part2 = []
         i=0
         for g in gradients:
-            if(i < 4):
-                grad_part1[i] = g
+            if(i < half_index):
+                grad_part1.append(g)
             else:
-                grad_part2[i-4] = g
+                grad_part2.append(g)
             i=i+1
 
-        send_data_1 = pickle.dumps(grad_part_1,pickle.HIGHEST_PROTOCOL)
+        send_data_1 = pickle.dumps(grad_part1,pickle.HIGHEST_PROTOCOL)
         to_send_size_1 = len(send_data_1)
         send_size_1 = pickle.dumps(to_send_size_1, pickle.HIGHEST_PROTOCOL)
         s1.sendall(send_size_1)
         s1.sendall(send_data_1)
 
-        send_data_2 = pickle.dumps(grad_part_2,pickle.HIGHEST_PROTOCOL)
+        send_data_2 = pickle.dumps(grad_part2,pickle.HIGHEST_PROTOCOL)
         to_send_size_2 = len(send_data_2)
         send_size_2 = pickle.dumps(to_send_size_2, pickle.HIGHEST_PROTOCOL)
         s2.sendall(send_size_2)
@@ -209,18 +211,19 @@ def train():
         recv_size = pickle.loads(recv_size)
         recv_data = safe_recv(recv_size, s2)
         var_vals_2 = pickle.loads(recv_data)
-        s1.close()
-        s2.close()
         #print("recved grads")
         
         feed_dict = {}
         i=0
         for v in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES):
-            if(i < 4):
+            if(i < half_index):
                 feed_dict[v] = var_vals_1[i]
             else:
-                feed_dict[v] = var_vals_2[i-4]
+                feed_dict[v] = var_vals_2[i-half_index]
             i=i+1
+      
+      s1.close()
+      s2.close()
 
 def main(argv=None):  # pylint: disable=unused-argument
   global port_ps1

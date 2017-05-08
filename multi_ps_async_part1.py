@@ -60,7 +60,7 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 100001,
+tf.app.flags.DEFINE_integer('max_steps', 100002,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
@@ -88,11 +88,11 @@ def handleWorker(port,gradients_q,global_var_vals):
     print("Connecting to port : ", port)
     s.bind((TCP_IP, port))
     s.listen(1)
+    conn, addr = s.accept()
+    print('Connection address:', addr)
 
     while 1:
-        conn, addr = s.accept()
-        #print('Connection address:', addr)
-            
+        #print("Receiving size")
         size = safe_recv(8,conn)
         size = pickle.loads(size)
         data = safe_recv(size,conn)
@@ -104,7 +104,8 @@ def handleWorker(port,gradients_q,global_var_vals):
         size = pickle.dumps(size, pickle.HIGHEST_PROTOCOL)
         conn.sendall(size)
         conn.sendall(global_var_vals.value)
-        conn.close()
+        #print("Sent global var values")
+    conn.close()
     s.close()
 
 
@@ -222,6 +223,7 @@ def main(argv=None):  # pylint: disable=unused-argument
   for i in xrange(MAX_WORKERS):
         process_port = port + i + 1
         p = Process(target=handleWorker, args=(process_port,gradients_q,global_var_vals))
+        p.daemon=True
         p.start()
 
   cifar10.maybe_download_and_extract()
