@@ -40,6 +40,7 @@ import numpy as np
 import sys
 import cPickle as pickle
 import socket
+import multiprocessing
 from multiprocessing import Process, Queue, Value, Manager
 from ctypes import c_char_p 
 
@@ -61,7 +62,7 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 101,
+tf.app.flags.DEFINE_integer('max_steps', 100002,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
@@ -107,7 +108,9 @@ def handleWorker(port,gradients_q,done_flag,global_var_vals,ack_q,n):
         conn.sendall(global_var_vals.value)
         ack_q.put(1)
         k=k+1
-        if(k==n):
+        #print("Worker: ", k)
+        if(k==(n+1)):
+            print("Working: Breaking from loop")
             break
     conn.close()
     s.close()
@@ -194,10 +197,10 @@ def train():
 
       while not mon_sess.should_stop():
         val = mon_sess.run(global_step, feed_dict=feed_dict)
-        print("Iteration: ", val)
+        #print("Iteration: ", val)
         if(val == (FLAGS.max_steps - 1)):
             print("Global step val while stoping.")
-            sys.exit()
+            return
         for i in xrange(MAX_WORKERS):
             recv_grads = gradients_q.get()
             feed_dict = {}
@@ -236,10 +239,12 @@ def main(argv=None):  # pylint: disable=unused-argument
   done_flag = manager.Value('i', 0)
   n = int(FLAGS.max_steps/MAX_WORKERS)
   print("Each worker does ", n, " iterations")
+  process_list = []
   for i in xrange(MAX_WORKERS):
         process_port = port + i + 1
         p = Process(target=handleWorker, args=(process_port,gradients_q,done_flag,global_var_vals, ack_q,n))
         p.start()
+        process_list.append(p)
 
   cifar10.maybe_download_and_extract()
   if tf.gfile.Exists(FLAGS.train_dir):
@@ -248,6 +253,8 @@ def main(argv=None):  # pylint: disable=unused-argument
   total_start_time = time.time()
   train()
   print("--- %s seconds ---" % (time.time() - total_start_time))
+  for p in process_list:
+      p.join()
 
 if __name__ == '__main__':
   tf.app.run()
