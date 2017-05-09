@@ -1,14 +1,14 @@
 
+DistNet : Distributed Training for DNN 
 
+Dataset Used:
 CIFAR-10 is a common benchmark in machine learning for image recognition.
-
 http://www.cs.toronto.edu/~kriz/cifar.html
 
-Code in this directory demonstrates how to use TensorFlow to train and evaluate a convolutional neural network (CNN) on both CPU and GPU. We also demonstrate how to train a CNN over multiple GPUs.
+DNN used:
+Alexnet
 
-Detailed instructions on how to get started available at:
-
-http://tensorflow.org/tutorials/deep_cnn/
+Code in this directory contains code training a convolutional neural network (CNN) in a Distributed fashion. It uses single GPU TensorFlow code as a base and builds it up for it to work in a distributed fashion. It achieves an accuracy of 86.01% but in a shorter amount of time.
 
 Different Types of Distributed Tensorflow Implemented:
 
