@@ -33,7 +33,19 @@
       </p>
       <!--<a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Pre-process Depth</h3> -->
 
+  <h3>Challenges</h3>
+      <ol>
+      <li>Deciding on a reliable and fast communication mechanism. Many of the wrappers around low-level sockets come with overheads and poor reliability(for eg. python bindings for MPI.
+            Hence, we decided to use the low-level socket API directly, and write explicit functions to safely receive all the intended data</li>
+       <li>Due to limitations of time and resources, we are implementing a distributed training algorithm for a relatively smaller data set - CIFAR-10. This allows us to spend sufficient time in
+            developing the distributed algorithms rather than waiting for the training to complete. The results of these smaller data sets will reflect even more positively
+            for larger data sets(more machines, more data in working set).</li>  
+      <li>Our parameter server implementation uses multiple processes, shared memory and queues, as opposed to multi-threading, this is because
+            a multi-threading pythonic server cannot utilize multiple cores because of the Global Interpreter Lock</li>
+       <li>Splitting the tensorflow computation graph without tensorflow knowing about it is a difficult task. Multiple partial runs on the same graph are not fully supported, because of which we had to 
+            ensure that we call compute and apply gradients on two different machines for all our implementations.</li>
       
+      </ol>
 
   <h3>Preliminary Results with GTX 1080</h3>
 <p>
