@@ -14,17 +14,22 @@
 # ==============================================================================
 
 """A binary to train CIFAR-10 using a single GPU.
+
 Accuracy:
 cifar10_train.py achieves ~86% accuracy after 100K steps (256 epochs of
 data) as judged by cifar10_eval.py.
+
 Speed: With batch_size 128.
+
 System        | Step Time (sec/batch)  |     Accuracy
 ------------------------------------------------------------------
 1 Tesla K20m  | 0.35-0.60              | ~86% at 60K steps  (5 hours)
 1 Tesla K40m  | 0.25-0.35              | ~86% at 100K steps (4 hours)
+
 Usage:
 Please see the tutorial and website for how to download the CIFAR-10
 data set, compile the program and train the model.
+
 http://tensorflow.org/tutorials/deep_cnn/
 """
 from __future__ import absolute_import
@@ -43,18 +48,22 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 1000000,
+tf.app.flags.DEFINE_integer('max_steps', 10,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
-tf.app.flags.DEFINE_integer('log_frequency', 10,
+tf.app.flags.DEFINE_integer('log_frequency', 1,
                             """How often to log results to the console.""")
 
 
 def train():
   """Train CIFAR-10 for a number of steps."""
-  with tf.Graph().as_default():
-    global_step = tf.contrib.framework.get_or_create_global_step()
+
+  g1 = tf.Graph()
+  with g1.as_default():
+    global_step = tf.Variable(-1, name='global_step', trainable=False, dtype=tf.int32)
+    increment_global_step_op = tf.assign(global_step, global_step+1)
+    #global_step = tf.contrib.framework.get_or_create_global_step()
 
     # Get images and labels for CIFAR-10.
     images, labels = cifar10.distorted_inputs()
@@ -66,9 +75,15 @@ def train():
     # Calculate loss.
     loss = cifar10.loss(logits, labels)
 
+    grads  = cifar10.train_part1(loss, global_step)
+    print("grads type",type(grads))
+    print("grads type",type(grads[0]))
+    print("grads type",type(grads[1]))
+
+
     # Build a Graph that trains the model with one batch of examples and
     # updates the model parameters.
-    train_op = cifar10.train(loss, global_step)
+    train_op = cifar10.train_part2(loss, global_step, grads)
 
     class _LoggerHook(tf.train.SessionRunHook):
       """Logs loss and runtime."""
@@ -79,6 +94,8 @@ def train():
 
       def before_run(self, run_context):
         self._step += 1
+        print(FLAGS.max_steps)
+        print("step # ,",self._step)
         return tf.train.SessionRunArgs(loss)  # Asks for loss value.
 
       def after_run(self, run_context, run_values):
@@ -103,8 +120,12 @@ def train():
                _LoggerHook()],
         config=tf.ConfigProto(
             log_device_placement=FLAGS.log_device_placement)) as mon_sess:
+
+     # h = mon_sess.partial_run_setup([grads, train_op], [global_step, images, labels, logits, loss])
+     
       while not mon_sess.should_stop():
-        mon_sess.run(train_op)
+        gradients = mon_sess.run([grads,increment_global_step_op])
+        #res = mon_sess.run(train_op) 
 
 
 def main(argv=None):  # pylint: disable=unused-argument
@@ -112,7 +133,9 @@ def main(argv=None):  # pylint: disable=unused-argument
   if tf.gfile.Exists(FLAGS.train_dir):
     tf.gfile.DeleteRecursively(FLAGS.train_dir)
   tf.gfile.MakeDirs(FLAGS.train_dir)
+  total_start_time = time.time()
   train()
+  print("--- %s seconds ---" % (time.time() - total_start_time))
 
 
 if __name__ == '__main__':
