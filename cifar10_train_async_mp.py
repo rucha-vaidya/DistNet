@@ -61,13 +61,13 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 100000,
+tf.app.flags.DEFINE_integer('max_steps', 50000,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
 tf.app.flags.DEFINE_integer('log_frequency', 10,
                             """How often to log results to the console.""")
-gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.45)
+gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.25)
 def safe_recv(size, server_socket):
   data = ''
   temp = ''

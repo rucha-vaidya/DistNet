@@ -76,6 +76,9 @@ def train():
     loss = cifar10.loss(logits, labels)
 
     grads  = cifar10.train_part1(loss, global_step)
+    print("grads type",type(grads))
+    print("grads type",type(grads[0]))
+    print("grads type",type(grads[1]))
 
 
     # Build a Graph that trains the model with one batch of examples and

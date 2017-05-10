@@ -138,6 +138,45 @@ def _variable_with_weight_decay(name, shape, stddev, wd):
     tf.add_to_collection('losses', weight_decay)
   return var
 
+def distorted_inputs1():
+  """Construct distorted input for CIFAR training using the Reader ops.
+
+  Returns:
+    images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
+    labels: Labels. 1D tensor of [batch_size] size.
+
+  Raises:
+    ValueError: If no data_dir
+  """
+  if not FLAGS.data_dir:
+    raise ValueError('Please supply a data_dir')
+  data_dir = os.path.join(FLAGS.data_dir, 'cifar-10-batches-bin')
+  images, labels = cifar10_input.distorted_inputs1(data_dir=data_dir,
+                                                  batch_size=FLAGS.batch_size)
+  if FLAGS.use_fp16:
+    images = tf.cast(images, tf.float16)
+    labels = tf.cast(labels, tf.float16)
+  return images, labels
+
+def distorted_inputs2():
+  """Construct distorted input for CIFAR training using the Reader ops.
+
+  Returns:
+    images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
+    labels: Labels. 1D tensor of [batch_size] size.
+
+  Raises:
+    ValueError: If no data_dir
+  """
+  if not FLAGS.data_dir:
+    raise ValueError('Please supply a data_dir')
+  data_dir = os.path.join(FLAGS.data_dir, 'cifar-10-batches-bin')
+  images, labels = cifar10_input.distorted_inputs2(data_dir=data_dir,
+                                                  batch_size=FLAGS.batch_size)
+  if FLAGS.use_fp16:
+    images = tf.cast(images, tf.float16)
+    labels = tf.cast(labels, tf.float16)
+  return images, labels
 
 def distorted_inputs():
   """Construct distorted input for CIFAR training using the Reader ops.
