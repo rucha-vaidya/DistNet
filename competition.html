@@ -8,7 +8,9 @@
 
   
 
-<p>Distnet displayes techniques used in a distributed training algorithm for high-accuracy deep neural networks using Cuda on a cluster of nodes and a parameter-server architecture leveraging socket communication</p>
+<p>Distnet displayes techniques used in a distributed training algorithm for high-accuracy deep neural networks using Cuda on a cluster of nodes and a parameter-server architecture leveraging socket communication. 
+      The main goal is to achieve similar accuracy as non-distributed training in lesser
+      amount of time</p>
 
 <h3>
 <a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Background</h3>
@@ -21,19 +23,25 @@
     The speed and scalability of distributed algorithms is almost always limited by the overhead of communicating between servers; DNN training is not an exception to this rule.
     Therefore, the key consideration here is to reduce communication overhead wherever possible, while not degrading the accuracy of the DNN models that we train.</p>
 
-<h3> <b>Algorithm</b> </h3>
+<h3>Algorithm</h3>
 <p>
  We are currently focussed on using data parallelism to reduce training time. We explore several flavours of data parallelism in terms of distributed computation and communication. Data parallelism can be achieved in two ways - feeding different input files and/or shuffling data before each run. 
 </p>
+      
+      
 
 <h3> <b> Technology</b></h3>
 <p>We use Tensorflow for CNN layer construction and all of the CNN related operations. Message sending between different nodes happens through the low-level socket API
       </p>
       <!--<a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Pre-process Depth</h3> -->
 
-  <h3>Build Image Pyramids</h3>
+      
+
+  <h3>Preliminary Results with GTX 1080</h3>
 <p>
-  We build “pyramids” of the two grayscale and depth image pairs. The bottom-most level (level 0) of the pyramid consist of the whole images. Level i consists of a blurred and down-sampled version of level i-1. This is done so that we can track all magnitudes of motion, coarse to fine. 
+  We did the correctness testing with the Nvidia GTX 1080 present in Gates Machines. Since communication between different Gates machines is difficult to achieve, we simulated multiple machines
+      on a single node by launching multiple tensorflows that shared the GPU. Asynchronous performs better than other synchronous and locking mechanisms. The advantage of asynchronous will be even more
+      pronounced when many more workers are used. The following graph represents the amount of time it took for each implementation to reach 86.1% accuracy.
  <div class = "box">
     <img src="img/rgb0.png" />
   </div>
