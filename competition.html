@@ -23,14 +23,13 @@
 
 <h3> <b>Algorithm</b> </h3>
 <p>
- We are currently focussed on using data parallelism to reduce training time. We explore several flavours of data parallelism in terms of distributed computation and communication. 
+ We are currently focussed on using data parallelism to reduce training time. We explore several flavours of data parallelism in terms of distributed computation and communication. Data parallelism can be achieved in two ways - feeding different input files and/or shuffling data before each run. 
 </p>
 
-<h3>Input</h3>
-<p> To our program we have as input two pairs of images, two different RGB frames (converted to grayscale) and their two depth equivalents. The depth images have been captured from the Kinect. Each pixel in the depth image tells us how far that pixel is from the camera in millimeters. We normalize this to tell us the depths in meters.
-</p>
-<h3>
-<!--<a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Pre-process Depth</h3> -->
+<h3> <b> Technology</b></h3>
+<p>We use Tensorflow for CNN layer construction and all of the CNN related operations. Message sending between different nodes happens through the low-level socket API
+      </p>
+      <!--<a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Pre-process Depth</h3> -->
 
   <h3>Build Image Pyramids</h3>
 <p>
@@ -41,20 +40,6 @@
   <div class = "box">
     <img src="img/rgb1.png" />
   </div>
-
-
-
-  <h3>Pre-process Depth</h3>
-
-<p>
-  We preprocess the depth images to only consider pixels that are within a particular range of depths. For example, we ignore pixels that are too far away to affect tracking, or that are so far away that they may be obfuscated by other objects.
-  <div class = "box">
-    <img src="img/depth0.png" />
-  </div>
-  <div class = "box">
-    <img src="img/depth1.png" />
-  </div>
-
 
 
 
