@@ -30,7 +30,7 @@
       
       
 
-<h3> <b> Technology</b></h3>
+<h3>Technology</h3>
 <p>We use Tensorflow for CNN layer construction and all of the CNN related operations. Message sending between different nodes happens through the low-level socket API
       </p>
       <!--<a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Pre-process Depth</h3> -->
@@ -43,6 +43,25 @@
       on a single node by launching multiple tensorflows that shared the GPU. Asynchronous performs better than other synchronous and locking mechanisms. The advantage of asynchronous will be even more
       pronounced when many more workers are used. The following graph represents the amount of time it took for each implementation to reach 86.1% accuracy.
  <div class = "box">
+    <img src="assets/single_gpu_times.png" />
+  </div>
+      
+  <h3>AWS Cluster Results</h3>
+      <p>We tested the baseline on a single node with Nvidia K520 and the synchronous distributed version as well as the asynchronous immediate update but no-wait model with two workers
+      and one parameter server. Both distributed versions achieve the same accuracy as baseline in half the amount of time. The only slight difference in running times of synchronous and asynchronous is due to the less number
+      of workers. Also, unlike in GTX 1080, our baseline code here achieved an accuracy of 85.5, since the K520 are slower GPUs, and it takes much longer to achieve the same accuracy even in 
+      baseline implementation.</p>
+      
+      <div class = "box">
+    <img src="assets/single_gpu_times.png" />
+  </div>
+      <div class = "box">
+    <img src="assets/single_gpu_times.png" />
+  </div>
+      <div class = "box">
+    <img src="assets/single_gpu_times.png" />
+  </div>
+      <div class = "box">
     <img src="assets/single_gpu_times.png" />
   </div>
 
