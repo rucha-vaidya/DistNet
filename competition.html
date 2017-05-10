@@ -50,7 +50,8 @@
       <p>We tested the baseline on a single node with Nvidia K520 and the synchronous distributed version as well as the asynchronous immediate update but no-wait model with two workers
       and one parameter server. Both distributed versions achieve the same accuracy as baseline in half the amount of time. The only slight difference in running times of synchronous and asynchronous is due to the less number
       of workers. Also, unlike in GTX 1080, our baseline code here achieved an accuracy of 85.5, since the K520 are slower GPUs, and it takes much longer to achieve the same accuracy even in 
-      baseline implementation.</p>
+      baseline implementation. We also see that both the distributed version and non-distributed versions have similar fall of the curve for loss, but the issue with stopping
+      the non-distributed training, but since it is batched gradient descent, it has likely seen lesser data to create a better model.</p>
       
       <div class = "box">
     <img src="assets/time_taken_g2.2.png" />
@@ -58,7 +59,7 @@
       <div class = "box">
     <img src="assets/baseline_loss.png" />
   </div>
-      <div class = "box" max-width = 60% max-height=60%>
+      <div class = "box">
     <img src="assets/synch_loss2.png" />
   </div>
       <div class = "box">
