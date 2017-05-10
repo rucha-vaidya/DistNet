@@ -15,7 +15,7 @@ Different Types of Distributed TensorFlow Implemented:
 
 1. Synchronous Implementation
 Single Parameter Server which can handle multiple workers parallely but in a synchronous fashion. It waits for all workers to finish an iteration before sending the parameter values after applying all the gradients received from all workers.  
-Files: cifar10_train_sync.py  ps_sync.py     
+Files: cifar10_train_sync.py  ps_sync.py        
 Output Files: ps_sync_output worker_sync_1 worker_sync_2
 
 2. Asynchronous Implementation - Apply gradients and reply
