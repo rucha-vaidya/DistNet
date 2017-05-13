@@ -153,6 +153,17 @@ Continuing we also tried multiple parameter server models wherein the parameter 
             <li>The earlier observations about no prominent differences in execution times of various approaches hold true here as well because of number of workers just being 2.
             </li>
             </ol>
+      
+       <h4>Experiment Setup 3</h4>
+      <p>Observing the effect on speedup by increasing the number of workers. Tests were conducted on AWS as before using 1, 2 and 4 workers.</p>
+      <div class="box" style="margin:4; padding:4">
+<img src="assets/Scale_out_AWS.png"/>
+            </div>
+      <p>Salient Observations</p>
+      <ol>
+            <li>With 2 workers there is a speedup of 1.97 whereas it is 2.65 in case of 4 workers compared to 1 worker. This non-linear increase in speedup is due to communication overload and also because of bottleneck at the parameter server</li>
+            
+            </ol>
      <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/rucha-vaidya/parallel-final">DistNet</a> is maintained by <a href="https://github.com/NasrinJaleel93">NasrinJaleel93</a> and <a href="https://github.com/rucha-vaidya">rucha-vaidya</a>.</span>
 
