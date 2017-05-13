@@ -139,6 +139,20 @@ Continuing we also tried multiple parameter server models wherein the parameter 
             <li>Also the Lazy Update approach did not affect the results much because the time taken to apply gradients was observed to be very small and not worth postponing.
 </li>
             </ol>
+      
+      
+      <h4>Experiment Setup 2</h4>
+      <p>Three EC2 instances on AWS out of which two were workers and one was parameter server, each having NVIDIA GRID K520 GPU</p>
+      <div class="box" style="margin:4; padding:4">
+<img src="assets/AWS_cluster.png"/>
+            </div>
+      <p>Salient Observations</p>
+      <ol>
+            <li>The maximum speedup observed is 1.97x. This is as expected because now there are dedicated compute resources for each worker and parameter server. 
+.</li>
+            <li>The earlier observations about no prominent differences in execution times of various approaches hold true here as well because of number of workers just being 2.
+            </li>
+            </ol>
      <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/rucha-vaidya/parallel-final">DistNet</a> is maintained by <a href="https://github.com/NasrinJaleel93">NasrinJaleel93</a> and <a href="https://github.com/rucha-vaidya">rucha-vaidya</a>.</span>
 
