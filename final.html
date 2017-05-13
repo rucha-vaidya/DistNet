@@ -165,6 +165,21 @@ Continuing we also tried multiple parameter server models wherein the parameter 
             <li>With 2 workers there is a speedup of 1.97 whereas it is 2.65 in case of 4 workers compared to 1 worker. This non-linear increase in speedup is due to communication overload and also because of bottleneck at the parameter server</li>
             
             </ol>
+      
+      
+      <h4>Experiment Setup 4</h4>
+      <p>To explore the effects of various parallelism approaches on scaling out we wanted to test with 4 workers on AWS. But due to shortage of credits ( Surprisingly we lost most AWS credits in network communication among our instances even though we ran for short periods of time) it was not possible there. Thus we moved to GHC and simulated 4 workers and a parameter server there on a single GPU based machine</p>
+      <div class="box" style="margin:4; padding:4">
+<img src="assets/Scale_out_AWS.png"/>
+            </div>
+      <p>Salient Observations</p>
+      <ol>
+            
+            <li>Here the maximum speedup is 1.54x. This is because the compute resources are shared among so many processes.</li>
+            <li>Here there is visible difference in the execution times of various parallelism approaches. The approaches perform better in the order of Synchronous, Asynchronous with locks and the best , Asynchronous without locks. The next analysis was done to confirm this.</li>
+            </ol>
+      
+      
      <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/rucha-vaidya/parallel-final">DistNet</a> is maintained by <a href="https://github.com/NasrinJaleel93">NasrinJaleel93</a> and <a href="https://github.com/rucha-vaidya">rucha-vaidya</a>.</span>
 
