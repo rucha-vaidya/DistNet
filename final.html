@@ -1,1 +1,88 @@
 
+
+<section class="main-content">
+      <h2>
+<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a><b>Competition</b></h2>
+
+<h3>DistNet - Summary</h3>
+
+
+<p>Distnet displays various techniques used in parallelizing high-accuracy 
+  Convolutional Neural Network using a distributed training algorithm on a cluster of 
+  nodes and a parameter-server architecture leveraging socket communication.
+  The main goal is to find out which approach is beneficial in which scenario in 
+  achieving similar accuracy as non-distributed training in lesser amount of time.</p>
+
+<h3>Background</h3>
+<p>Neural networks are a set of algorithms, modeled loosely after the human brain, that are designed to recognize patterns. They interpret sensory data through a kind of machine perception, labeling or clustering raw input. The patterns they recognize are numerical, contained in vectors, into which all real-world data, be it images, sound, text or time series, must be translated. Deep neural networks have more than a single hidden layer between the input and the output layer. Training the neural network is done through gradient descent and backpropagation. Deep neural networks with multiple convolution layers and followed by fully connected layers takes a long time to train due to the varying learning rates. To achieve high accuracy, the amount of data fed into these networks is extremely high, making the time for each epoch high. Training AlexNet on a single GPU(NVIDIA K20) takes about 100 epochs (6 days). Long training times for high-accuracy deep neural networks (DNNs) impede research into new DNN architectures and slow the development of high-accuracy DNNs. Hence, we would like to explore the use of a cluster of GPU machines to accelerate the learning. The speed and scalability of distributed algorithms is almost always limited by the overhead of communicating between servers; DNN training is not an exception to this rule. Therefore, the key consideration here is to reduce communication overhead wherever possible, while not degrading the accuracy of the DNN models that we train.
+  </p>
+      
+      
+
+<h3>Technology</h3>
+<p>We use Tensorflow for CNN layer construction and all of the CNN related operations. Message sending between different nodes happens through the low-level socket API
+      </p>
+      <!--<a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Pre-process Depth</h3> -->
+
+  <h3>Challenges</h3>
+      <ol>
+      <li>Deciding on a reliable and fast communication mechanism. Many of the wrappers around low-level sockets come with overheads and poor reliability(for eg. python bindings for MPI.
+            Hence, we decided to use the low-level socket API directly, and write explicit functions to safely receive all the intended data</li>
+       <li>Due to limitations of time and resources, we are implementing a distributed training algorithm for a relatively smaller data set - CIFAR-10. This allows us to spend sufficient time in
+            developing the distributed algorithms rather than waiting for the training to complete. The results of these smaller data sets will reflect even more positively
+            for larger data sets(more machines, more data in working set).</li>  
+      <li>Our parameter server implementation uses multiple processes, shared memory and queues, as opposed to multi-threading, this is because
+            a multi-threading pythonic server cannot utilize multiple cores because of the Global Interpreter Lock</li>
+       <li>Splitting the tensorflow computation graph without tensorflow knowing about it is a difficult task. Multiple partial runs on the same graph are not fully supported, because of which we had to 
+            ensure that we call compute and apply gradients on two different machines for all our implementations.</li>
+      
+      </ol>
+
+  <h3>Preliminary Results with GTX 1080</h3>
+<p>
+  We did the correctness testing with the Nvidia GTX 1080 present in Gates Machines. Since communication between different Gates machines is difficult to achieve, we simulated multiple machines
+      on a single node by launching multiple tensorflows that shared the GPU. Asynchronous performs better than other synchronous and locking mechanisms. The advantage of asynchronous will be even more
+      pronounced when many more workers are used. The following graph represents the amount of time it took for each implementation to reach 86.1% accuracy.
+ <div class = "box">
+    <img src="assets/single_gpu_times.png" />
+  </div>
+      
+  <h3>AWS Cluster Results</h3>
+      <p>We tested the baseline on a single node with Nvidia K520 and the synchronous distributed version as well as the asynchronous immediate update but no-wait model with two workers
+      and one parameter server. Both distributed versions achieve the same accuracy as baseline in half the amount of time. The only slight difference in running times of synchronous and asynchronous is due to the less number
+      of workers. Also, unlike in GTX 1080, our baseline code here achieved an accuracy of 85.5, since the K520 are slower GPUs, and it takes much longer to achieve the same accuracy even in 
+      baseline implementation. We also see that both the distributed version and non-distributed versions have similar fall of the curve for loss, but the issue with stopping
+      the non-distributed training, but since it is batched gradient descent, it has likely seen lesser data to create a better model.</p>
+      
+      <div height="50%" width="50%">
+    <img src="assets/time_taken_g2.2.png" />
+  </div>
+      <div height="50%" width="50%">
+    <img src="assets/baseline_loss.png" />
+  </div>
+      <div height="50%" width="50%">
+    <img src="assets/synch_loss2.png" />
+  </div>
+      <div height="50%" width="50%">
+    <img src="assets/async_loss2.png" />
+  </div>
+
+
+
+<h3>Pending Tests</h3>
+      <ol>
+      <li>Testing the limits of data parallelism for CIFAR-10 dataset by scaling to even more nodes. This will also show us the true benefits of asynchronous
+            stochastic gradient descent over a synchronous version</li>
+       <li>We also believe the multiple parameter server will prove useful in a scenario where you have many more workers, 
+            hence we like to run our multi-parameter server implementation on a cluster of AWS instances</li>
+      </ol>
+
+
+
+       <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/rucha-vaidya/parallel-final">DistNet</a> is maintained by <a href="https://github.com/NasrinJaleel93">NasrinJaleel93</a> and <a href="https://github.com/rucha-vaidya">rucha-vaidya</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    
