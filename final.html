@@ -107,9 +107,21 @@
 
  
  <h4>Baseline Implementation</h4>
-      <p>We use the CIFAR-10 TensorFlow tutorial code running on a single GPU as our baseline implementation</p>
+      <p>We use the CIFAR-10 TensorFlow tutorial code that implements the AlexNet running on a single GPU as our baseline implementation</p>
 
+  <h4>Axis of Parallelism Used</h4>
+      <p>We have used the Data Parallelism approach as a major axis of parallelism. The CNN datasets generally have large sizes and thus dividing training data among the workers makes it fit in memory and also help to go over data faster. Using multiple workers helps us look at higher aggregate size batches of data at once,
+         thereby reducing the loss faster, and subsequently reaching the said accuracy faster.</p>
 
+   <h4>Exploring Design Space in Parallelization</h4>
+      <div class="box" style="margin:4; padding:4">
+<img src="assets/design_space.png"/>
+            </div>
+      <p>The project explores the various design decisions available in parallelizing the CNN training. Beginning with single Parameter Server, we tried the Synchronous and Asynchronous Stochastic Gradient Descent. In synchronous approach the workers go in sync with each other whereas in asynchronous the workers run iterations on their own speed without waiting for anyone else.
+In the asynchronous case we tried the Locked version wherein every read and write of the parameter values at the Parameter Server is protected by a lock.  In the lock-free version similar to Project Adam we removed the locked access. 
+In addition another Lazy Update approach was tested in which the parameter server handling the workers immediately sent the parameter values and a background process lazily applied the gradients received later. 
+
+Continuing we also tried multiple parameter server models wherein the parameter values were sharded across two parameter servers. </p>
        <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/rucha-vaidya/parallel-final">DistNet</a> is maintained by <a href="https://github.com/NasrinJaleel93">NasrinJaleel93</a> and <a href="https://github.com/rucha-vaidya">rucha-vaidya</a>.</span>
 
