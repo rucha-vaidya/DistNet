@@ -179,6 +179,20 @@ Continuing we also tried multiple parameter server models wherein the parameter 
             <li>Here there is visible difference in the execution times of various parallelism approaches. The approaches perform better in the order of Synchronous, Asynchronous with locks and the best , Asynchronous without locks. The next analysis was done to confirm this.</li>
             </ol>
       
+      <h4>Experiment Setup 5</h4>
+      <p>To compare the various approaches when applied to 2 and 4 workers and see the reasons for the same.
+</p>
+      <div class="box" style="margin:4; padding:4">
+<img src="assets/locking_sync_overhead.png"/>
+            </div>
+      <p>Salient Observations</p>
+      <ol>
+            <li>Effects of overheads is more pronounced in case of 4 workers. This is because there are more instances fighting for locks and resources at the parameter server.</li>
+            <li>Waiting for higher number of workers to converge in case of synchronous approach decreases its efficiency when number of workers increase.</li>
+            <li>In case of Asynchronous locked approach, with increasing number of workers there were more instances fighting for locks. </li>
+            <li>The best case was when it was Asynchronous approach and also not locked as in case of Project Adam. This is because both the locking and synchronization overheads are not present in this case.</li>
+            </ol>
+      
       
      <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/rucha-vaidya/parallel-final">DistNet</a> is maintained by <a href="https://github.com/NasrinJaleel93">NasrinJaleel93</a> and <a href="https://github.com/rucha-vaidya">rucha-vaidya</a>.</span>
