@@ -125,7 +125,8 @@ Continuing we also tried multiple parameter server models wherein the parameter 
       
       
 <h3>Results</h3>
-<p>The results are measured using wall clock time. 
+<p>The results are measured using wall clock time. In all scenarios, the distributed trained model achieves the same accuracy as the baseline. Also, on reducing the baseline training time to the time
+      taken by its best distributed counterparts, ends up reducing the accuracy as the baseline at any point has looked at much less data than the distributed version.
 </p>
       <h4>Experiment Setup 1</h4>
       <p>To first get the correctness working we started out by running 2 workers on a single GHC machine. This was done because we couldn’t get two GHC machines to communicate with each other due to some security issues. Because of this the GPU compute resources were shared among the 2 workers and the parameter server.</p>
@@ -155,7 +156,7 @@ Continuing we also tried multiple parameter server models wherein the parameter 
             </ol>
       
        <h4>Experiment Setup 3</h4>
-      <p>Observing the effect on speedup by increasing the number of workers. Tests were conducted on AWS as before using 1, 2 and 4 workers.</p>
+      <p>Observing the effect on speedup by increasing the number of workers. Tests were conducted on AWS as before using 1, 2 and 4 workers and a single parameter server.</p>
       <div class="box" style="margin:4; padding:4">
 <img src="assets/Scale_out_AWS.png"/>
             </div>
